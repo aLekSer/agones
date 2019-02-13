@@ -94,6 +94,7 @@ func TestControllerSyncGameServer(t *testing.T) {
 			gameServers := &v1alpha1.GameServerList{Items: []v1alpha1.GameServer{*fixture}}
 			return true, gameServers, nil
 		})
+		//Check only GS Status Subresource updates
 		mocks.AgonesClient.AddReactor("update", "gameservers", func(action k8stesting.Action) (bool, runtime.Object, error) {
 			ua := action.(k8stesting.UpdateAction)
 			gs := ua.GetObject().(*v1alpha1.GameServer)
@@ -102,16 +103,21 @@ func TestControllerSyncGameServer(t *testing.T) {
 			switch updateCount {
 			case 1:
 				expectedState = v1alpha1.GameServerStateCreating
-			case 2:
-				expectedState = v1alpha1.GameServerStateStarting
 			case 3:
+				expectedState = v1alpha1.GameServerStateStarting
+			case 5:
 				expectedState = v1alpha1.GameServerStateScheduled
 			}
-
-			assert.Equal(t, expectedState, gs.Status.State)
-			if expectedState == v1alpha1.GameServerStateScheduled {
-				assert.Equal(t, ipFixture, gs.Status.Address)
-				assert.NotEmpty(t, gs.Status.Ports[0].Port)
+			// Odd numbers related to Status Subresource updates
+			if (updateCount % 2) == 1 {
+				assert.Equal(t, ua.GetSubresource(), "status")
+				assert.Equal(t, expectedState, gs.Status.State)
+				if expectedState == v1alpha1.GameServerStateScheduled {
+					assert.Equal(t, ipFixture, gs.Status.Address)
+					assert.NotEmpty(t, gs.Status.Ports[0].Port)
+				}
+			} else {
+				assert.Equal(t, ua.GetSubresource(), "")
 			}
 
 			return true, gs, nil
@@ -125,7 +131,7 @@ func TestControllerSyncGameServer(t *testing.T) {
 
 		err = c.syncGameServer("default/test")
 		assert.Nil(t, err)
-		assert.Equal(t, 3, updateCount, "update reactor should fire thrice")
+		assert.Equal(t, 5, updateCount, "update reactor should fire thrice")
 		assert.True(t, podCreated, "pod should be created")
 	})
 

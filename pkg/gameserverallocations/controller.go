@@ -278,6 +278,14 @@ func (c *Controller) allocate(gsa *v1alpha1.GameServerAllocation) (*v1alpha1.Gam
 
 	gs, err := c.gameServerGetter.GameServers(gsCopy.ObjectMeta.Namespace).
 		Patch(gsCopy.ObjectMeta.Name, types.JSONPatchType, patch)
+	if gs.Status.State != v1alpha1.GameServerStateAllocated {
+		gs.Status.State = v1alpha1.GameServerStateAllocated
+		gs, err = c.gameServerGetter.GameServers(gsCopy.ObjectMeta.Namespace).UpdateStatus(gs)
+
+		if err != nil {
+			return gs, errors.Wrapf(err, "error updating GameServer Status %s", gsCopy.ObjectMeta.Name)
+		}
+	}
 	if err != nil {
 		return gs, errors.Wrapf(err, "error updating GameServer %s", gsCopy.ObjectMeta.Name)
 	}

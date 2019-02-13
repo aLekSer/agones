@@ -334,10 +334,10 @@ func (c *Controller) applyStateDefaults(gs *v1alpha1.GameServer, namespace, name
 		if err != nil {
 			if k8serrors.IsNotFound(err) {
 				c.logger.WithField("key", name).Info("GameServer is no longer available for syncing")
+			} else {
+				c.logger.WithField("key", name).Error("Could not update to starting state")
 			}
 		}
-
-		c.logger.WithField("key", name).Error("Here we are")
 	}
 	return gs
 
@@ -496,11 +496,15 @@ func (c *Controller) syncGameServerCreatingState(gs *v1alpha1.GameServer) (*v1al
 	gsCopy := gs.DeepCopy()
 	gsCopy.Status.State = v1alpha1.GameServerStateStarting
 	gs, err = c.gameServerGetter.GameServers(gs.ObjectMeta.Namespace).UpdateStatus(gsCopy)
+	if err != nil {
+		return gs, errors.Wrapf(err, "error updating GameServer Status %s to Starting state", gs.Name)
+	}
 
-	// Also update version annotation of Gameserver which resides in ObjectMeta
 	//gs2, err := c.gameServerGetter.GameServers(gs.ObjectMeta.Namespace).Get(gsCopy.Name, metav1.GetOptions{})
-	//gs2.ObjectMeta.Annotations = gsCopy.ObjectMeta.Annotations
-	//gs, err = c.gameServerGetter.GameServers(gs.ObjectMeta.Namespace).Update(gs2)
+	//Add SDK version annotation
+	// Update version annotation of Gameserver which resides in ObjectMeta
+	gs.ObjectMeta.Annotations = gsCopy.ObjectMeta.Annotations
+	gs, err = c.gameServerGetter.GameServers(gs.ObjectMeta.Namespace).Update(gs)
 	if err != nil {
 		return gs, errors.Wrapf(err, "error updating GameServer %s to Starting state", gs.Name)
 	}
