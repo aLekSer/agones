@@ -54,6 +54,7 @@ type Controller struct {
 	crdGetter           v1beta1.CustomResourceDefinitionInterface
 	gameServerSetGetter getterv1alpha1.GameServerSetsGetter
 	gameServerSetLister listerv1alpha1.GameServerSetLister
+	gameServerLister    listerv1alpha1.GameServerLister
 	gameServerSetSynced cache.InformerSynced
 	fleetGetter         getterv1alpha1.FleetsGetter
 	fleetLister         listerv1alpha1.FleetLister
@@ -72,6 +73,7 @@ func NewController(
 	agonesInformerFactory externalversions.SharedInformerFactory) *Controller {
 
 	gameServerSets := agonesInformerFactory.Stable().V1alpha1().GameServerSets()
+	gameServers := agonesInformerFactory.Stable().V1alpha1().GameServers()
 	gsSetInformer := gameServerSets.Informer()
 
 	fleets := agonesInformerFactory.Stable().V1alpha1().Fleets()
@@ -82,6 +84,7 @@ func NewController(
 		gameServerSetGetter: agonesClient.StableV1alpha1(),
 		gameServerSetLister: gameServerSets.Lister(),
 		gameServerSetSynced: gsSetInformer.HasSynced,
+		gameServerLister:    gameServers.Lister(),
 		fleetGetter:         agonesClient.StableV1alpha1(),
 		fleetLister:         fleets.Lister(),
 		fleetSynced:         fInformer.HasSynced,
@@ -476,21 +479,26 @@ func (c *Controller) updateFleetStatus(fleet *stablev1alpha1.Fleet) error {
 
 	c.logger.WithField("key", fleet.Name).Info("Update Fleet Status")
 
-	list, err := ListGameServerSetsByFleetOwner(c.gameServerSetLister, fleet)
+	list, err := ListGameServersByFleetOwner(c.gameServerLister, fleet)
 	if err != nil {
 		return err
 	}
 
 	fCopy := fleet.DeepCopy()
-	fCopy.Status.Replicas = 0
-	fCopy.Status.ReadyReplicas = 0
-	fCopy.Status.AllocatedReplicas = 0
 
-	for _, gsSet := range list {
-		fCopy.Status.Replicas += gsSet.Status.Replicas
-		fCopy.Status.ReadyReplicas += gsSet.Status.ReadyReplicas
-		fCopy.Status.AllocatedReplicas += gsSet.Status.AllocatedReplicas
+	fCopy.Status.Replicas = int32(len(list))
+	ready := int32(0)
+	allocated := int32(0)
+	for _, gs := range list {
+		switch gs.Status.State {
+		case v1alpha1.GameServerStateAllocated:
+			allocated++
+		case v1alpha1.GameServerStateReady:
+			ready++
+		}
 	}
+	fCopy.Status.ReadyReplicas = ready
+	fCopy.Status.AllocatedReplicas = allocated
 
 	_, err = c.fleetGetter.Fleets(fCopy.Namespace).Update(fCopy)
 	return errors.Wrapf(err, "error updating status of fleet %s", fCopy.ObjectMeta.Name)

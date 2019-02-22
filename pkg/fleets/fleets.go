@@ -48,8 +48,5 @@ func ListGameServersByFleetOwner(gameServerLister listerv1alpha1.GameServerListe
 	fleet *stablev1alpha1.Fleet) ([]*stablev1alpha1.GameServer, error) {
 
 	list, err := gameServerLister.List(labels.SelectorFromSet(labels.Set{stablev1alpha1.FleetNameLabel: fleet.ObjectMeta.Name}))
-	if err != nil {
-		return list, errors.Wrapf(err, "error listing gameservers for fleets %s", fleet.ObjectMeta.Name)
-	}
-	return list, nil
+	return list, errors.Wrapf(err, "error listing gameservers for fleets %s", fleet.ObjectMeta.Name)
 }
