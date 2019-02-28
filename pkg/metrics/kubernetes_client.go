@@ -125,10 +125,10 @@ func init() {
 	}))
 
 	runtime.Must(view.Register(&view.View{
-		Name:        "k8s_client_workqueue_depth",
+		Name:        "k8s_client_workqueue_depth2",
 		Measure:     workQueueDepthStats,
 		Description: "Current depth of the work queue.",
-		Aggregation: view.LastValue(),
+		Aggregation: view.Distribution(0),
 		TagKeys:     []tag.Key{keyQueueName},
 	}))
 

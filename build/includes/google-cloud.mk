@@ -25,8 +25,8 @@ gcloud-init: ensure-build-config
 
 # Creates and authenticates a small, 6 node GKE cluster to work against (2 nodes are used for agones-metrics and agones-system)
 gcloud-test-cluster: GCP_CLUSTER_LEGACYABAC ?= false
-gcloud-test-cluster: GCP_CLUSTER_NODEPOOL_INITIALNODECOUNT ?= 4
-gcloud-test-cluster: GCP_CLUSTER_NODEPOOL_MACHINETYPE ?= n1-standard-4
+gcloud-test-cluster: GCP_CLUSTER_NODEPOOL_INITIALNODECOUNT ?= 3
+gcloud-test-cluster: GCP_CLUSTER_NODEPOOL_MACHINETYPE ?= n1-standard-2
 gcloud-test-cluster: $(ensure-build-image)
 	docker run --rm -it $(common_mounts) $(DOCKER_RUN_ARGS) $(build_tag) gcloud \
 		deployment-manager deployments create $(GCP_CLUSTER_NAME)  \

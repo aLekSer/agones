@@ -15,7 +15,7 @@
 apiVersion: "stable.agones.dev/v1alpha1"
 kind: Fleet
 metadata:
-  name: simple-udp
+  generateName: "a2"
 spec:
   replicas: 2
   template:

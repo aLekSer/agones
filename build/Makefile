@@ -22,12 +22,12 @@
 #    \ V / (_| | |  | | (_| | |_) | |  __\__ \
 #     \_/ \__,_|_|  |_|\__,_|_.__/|_|\___|___/
 #
-
+.PHONY: test-e2e
 # base version target. This is usually the next release.
 base_version = 0.9.0
 
 # agones image release registry
-release_registry = gcr.io/agones-images
+release_registry = gcr.io/agones-alexander
 
 #
 # All of the following can be overwritten with environemt variables
@@ -42,7 +42,7 @@ REGISTRY ?= $(release_registry)
 KUBECONFIG ?= ~/.kube/config
 # The (gcloud) test cluster that is being worked against
 GCP_CLUSTER_NAME ?= test-cluster
-GCP_CLUSTER_ZONE ?= us-west1-c
+GCP_CLUSTER_ZONE ?= us-central1-a
 GCP_BUCKET_CHARTS ?= agones-chart
 # the profile to use when developing on minikube
 MINIKUBE_PROFILE ?= agones
@@ -50,7 +50,7 @@ GO_BUILD_TAGS ?= none
 
 # Specify stress test level 1..100
 # STRESS_TEST_LEVEL=n requires capacity between 50*n up to 100*n simple-udp Game Servers.
-STRESS_TEST_LEVEL ?= 20
+STRESS_TEST_LEVEL ?= 1
 
 # kind cluster name to use
 KIND_PROFILE ?= agones
@@ -116,7 +116,8 @@ ifdef NO_RACE_DETECTOR
   RACE_DETECTOR_ARGS=
 endif
 
-GO_TEST=$(DOCKER_RUN) go test $(RACE_DETECTOR_ARGS)
+#-run TestSDKSetLabel
+GO_TEST=$(DOCKER_RUN) go test -v  $(RACE_DETECTOR_ARGS) 
 GO_E2E_TEST_ARGS=--kubeconfig /root/.kube/$(kubeconfig_file)
 
 PERF_OUTPUT_DIR=$(mount_path)/build/.perf
@@ -135,6 +136,7 @@ ifdef LOCAL_GO
 	go_build_base_path=$(agones_path)
 endif
 
+LOCAL_ZIP=1
 ZIP_SDK=docker run --rm $(common_mounts) -w $(mount_path)/cmd/sdk-server/bin/ $(build_tag) zip $(zip_flags)
 ifdef LOCAL_ZIP
 	ZIP_SDK=cd $(agones_path)/cmd/sdk-server/bin && zip -0

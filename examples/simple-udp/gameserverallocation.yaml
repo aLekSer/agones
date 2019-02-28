@@ -27,5 +27,5 @@ spec:
   # flexibility.
   # Below is an example of a GameServer allocated against a given fleet.
   required:
-    matchLabels:
-      stable.agones.dev/fleet: simple-udp
+    matchExpressions:
+    - {key: environment, operator: NotIn, values: [dev]}

@@ -1078,7 +1078,7 @@ spec:
         - name: PROMETHEUS_EXPORTER
           value: "true"
         - name: STACKDRIVER_EXPORTER
-          value: "false"
+          value: "true"
         - name: GCP_PROJECT_ID
           value: ""
         - name: SIDECAR_CPU_LIMIT
