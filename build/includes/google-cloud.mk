@@ -35,6 +35,35 @@ gcloud-test-cluster: $(ensure-build-image)
 	$(MAKE) gcloud-auth-cluster
 	$(MAKE) setup-test-cluster
 
+terraform-init:
+	docker run --rm -it $(common_mounts) $(DOCKER_RUN_ARGS) $(build_tag) bash -c '\
+	cd $(mount_path)/build && terraform init && gcloud auth application-default login'
+
+terraform-clean:
+	rm -r ./gke-test-cluster/.terraform
+	rm ./gke-test-cluster/terraform.tfstate*
+
+
+gcloud-terraform-cluster: GCP_PROJECT ?= ""
+gcloud-terraform-cluster: GCP_CLUSTER_LEGACYABAC ?= false
+gcloud-terraform-cluster: GCP_CLUSTER_NODEPOOL_INITIALNODECOUNT ?= 4
+gcloud-terraform-cluster: GCP_CLUSTER_NODEPOOL_MACHINETYPE ?= n1-standard-4
+gcloud-terraform-cluster: $(ensure-build-image)
+gcloud-terraform-cluster:
+	test -n "$(GCP_PROJECT)"  # $$GCP_PROJECT is undefined
+	$(DOCKER_RUN) bash -c 'export TF_VAR_password=$(GKE_PASSWORD) && \
+		cd $(mount_path)/build && terraform apply -auto-approve  \
+	 	-var "cluster={name=\"$(GCP_CLUSTER_NAME)\", machineType=\"$(GCP_CLUSTER_NODEPOOL_MACHINETYPE)\", \
+		 zone=\"$(GCP_CLUSTER_ZONE)\", project=\"$(GCP_PROJECT)\", \
+		 initialNodeCount=\"$(GCP_CLUSTER_NODEPOOL_INITIALNODECOUNT)\", \
+		 legacyABAC=\"$(GCP_CLUSTER_LEGACYABAC)\"}"'
+	$(MAKE) gcloud-auth-cluster
+	$(MAKE) setup-test-cluster
+
+gcloud-terraform-destroy-cluster:
+	$(DOCKER_RUN) bash -c ' \
+	cd $(mount_path)/build && terraform destroy -auto-approve' 
+
 clean-gcloud-test-cluster: $(ensure-build-image)
 	docker run --rm -it $(common_mounts) $(DOCKER_RUN_ARGS) $(build_tag) gcloud \
 		deployment-manager deployments delete $(GCP_CLUSTER_NAME)

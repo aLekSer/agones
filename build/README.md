@@ -379,6 +379,9 @@ The Kubernetes config file used to access the cluster. Defaults to `~/.kube/conf
 ### CLUSTER_NAME
 The (gcloud) test cluster that is being worked against. Defaults to `test-cluster`
 
+### GCP_PROJECT
+Your GCP project for deploying GKE cluster.
+
 ### IMAGE_PULL_SECRET
 The name of the secret required to pull the Agones images, if needed.
 If unset, no pull secret will be used.
@@ -541,6 +544,26 @@ Pulls down authentication information for kubectl against a cluster, name can be
 #### `make gcloud-auth-docker`
 Creates a short lived access to Google Cloud container repositories, so that you are able to call
 `docker push` directly. Useful when used in combination with `make push` command.
+
+### Terraform
+
+Targets used to deploy a cluster with terraform.
+
+#### `make terraform-init`
+Install google and google-beta terraform provider and authorize
+
+#### `make gcloud-terraform-cluster`
+Run next command with your project ID specified:
+```
+GCP_PROJECT=<YOUR_PROJECT_ID> GKE_PASSWORD="<YOUR_PASSWORD>" make gcloud-terraform-cluster
+```
+Where `<YOUR_PASSWORD>` should be 16 characters in length. You can omit GKE_PASSWORD and define `password=<YOUR_PASSWORD>` string in `build/terraform.tfvars`. Also you change `ports="7000-8000"` setting using tfvars file.
+
+#### `make gcloud-terraform-destroy-cluster`
+Run `terraform destroy` on your cluster.
+
+#### `make terraform-clean`
+Remove .terraform directory with configs
 
 ### Minikube
 
