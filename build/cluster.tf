@@ -13,10 +13,14 @@
 # limitations under the License.
 
 provider "google-beta" {
+  version = "~> 2.4"
   zone      = "${lookup(var.cluster, "zone")}"
 }
 
 
+provider "google" {
+  version = "~> 2.4"
+}
 # Password for the Kubernetes API.
 # Could be defined using GKE_PASSWORD env variable
 # or by setting `password="somepass"` string in build/terraform.tfvars
@@ -82,7 +86,7 @@ resource "google_container_cluster" "primary" {
   node_pool = [
     {
       node_count = "${lookup(var.cluster, "initialNodeCount")}"
-      node_config {
+      node_config = {
         machine_type = "${lookup(var.cluster, "machineType")}"
         oauth_scopes = [
           "https://www.googleapis.com/auth/devstorage.read_only",
@@ -94,7 +98,7 @@ resource "google_container_cluster" "primary" {
         ]
 
         tags = ["game-server"]
-        timeouts {
+        timeouts = {
           create = "30m"
           update = "40m"
         }
@@ -103,7 +107,7 @@ resource "google_container_cluster" "primary" {
     {
     name       = "agones-system"
     node_count = 1
-    node_config {
+    node_config = {
       preemptible  = true
       machine_type = "n1-standard-4"
 
@@ -129,7 +133,7 @@ resource "google_container_cluster" "primary" {
       name       = "agones-metrics"
       node_count = 1
 
-      node_config {
+      node_config = {
         preemptible  = true
         machine_type = "n1-standard-4"
 
@@ -155,7 +159,7 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_compute_firewall" "default" {
-  name    = "game-server-firewall-firewall"
+  name    = "game-server-firewall-firewall-${lookup(var.cluster, "name")}"
   project = "${lookup(var.cluster, "project")}"
   network = "${google_compute_network.default.name}"
 
@@ -169,7 +173,7 @@ resource "google_compute_firewall" "default" {
 
 resource "google_compute_network" "default" {
   project = "${lookup(var.cluster, "project")}"
-  name    = "agones-network"
+  name    = "agones-network-${lookup(var.cluster, "name")}"
 }
 
 
