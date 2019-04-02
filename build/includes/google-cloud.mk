@@ -40,8 +40,8 @@ terraform-init:
 	cd $(mount_path)/build && terraform init && gcloud auth application-default login'
 
 terraform-clean:
-	rm -r ./gke-test-cluster/.terraform
-	rm ./gke-test-cluster/terraform.tfstate*
+	rm -r ./.terraform
+	rm ./terraform.tfstate*
 
 
 gcloud-terraform-cluster: GCP_PROJECT ?= ""

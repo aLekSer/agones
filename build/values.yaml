@@ -1,0 +1,101 @@
+agones:
+  metrics:
+    prometheusEnabled: true
+    prometheusServiceDiscovery: true
+    stackdriverEnabled: false
+    stackdriverProjectID: ""
+  rbacEnabled: true
+  registerServiceAccounts: true
+  registerWebhooks: true
+  crds:
+    install: true
+    cleanupOnDelete: true
+  serviceaccount:
+    controller: agones-controller
+    sdk: agones-sdk
+  createPriorityClass: true
+  priorityClassName: agones-system
+  controller:
+    resources: {}
+    nodeSelector: {}
+    tolerations:
+    - key: "stable.agones.dev/agones-system"
+      operator: "Equal"
+      value: "true"
+      effect: "NoExecute"
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+            matchExpressions:
+              - key: stable.agones.dev/agones-system
+                operator: Exists
+    generateTLS: true
+    safeToEvict: false
+    persistentLogs: true
+    persistentLogsSizeLimitMB: 10000
+    numWorkers: 100
+    apiServerQPS: 400
+    apiServerQPSBurst: 500
+    http:
+      port: 8080
+    healthCheck:
+      initialDelaySeconds: 3
+      periodSeconds: 3
+      failureThreshold: 3
+      timeoutSeconds: 1
+  ping:
+    install: true
+    resources: {}
+    nodeSelector: {}
+    tolerations:
+    - key: "stable.agones.dev/agones-system"
+      operator: "Equal"
+      value: "true"
+      effect: "NoExecute"
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+            matchExpressions:
+              - key: stable.agones.dev/agones-system
+                operator: Exists
+    replicas: 2
+    http:
+      expose: true
+      response: ok
+      port: 80
+      serviceType: LoadBalancer
+    udp:
+      expose: true
+      rateLimit: 20
+      port: 50000
+      serviceType: LoadBalancer
+    healthCheck:
+      initialDelaySeconds: 3
+      periodSeconds: 3
+      failureThreshold: 3
+      timeoutSeconds: 1
+  image:
+    registry: gcr.io/agones-images
+    tag: 0.9.0-rc
+    controller:
+      name: agones-controller
+      pullPolicy: IfNotPresent
+    sdk:
+      name: agones-sdk
+      cpuRequest: 30m
+      cpuLimit: 0
+      alwaysPull: false
+    ping:
+      name: agones-ping
+      pullPolicy: IfNotPresent
+
+gameservers:
+  namespaces:
+  - default
+  minPort: 7000
+  maxPort: 8000
+
