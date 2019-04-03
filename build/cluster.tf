@@ -41,6 +41,7 @@ variable "cluster"  {
   }
 }   
 
+
 # echo command used for debugging purpose
 # Run `terraform taint null_resource.test-setting-variables` before second execution
 resource "null_resource" "test-setting-variables" {
@@ -66,89 +67,86 @@ resource "google_container_cluster" "primary" {
   project  = "${lookup(var.cluster, "project")}"
   provider = "google-beta"
 
-  initial_node_count = "${lookup(var.cluster, "initialNodeCount")}"
   master_auth {
     username = "admin"
     password = "${var.password}"
   }
   enable_legacy_abac = "${lookup(var.cluster, "legacyAbac")}"
+  node_pool = [
+    {
+      node_count = "${lookup(var.cluster, "initialNodeCount")}"
+      node_config {
+        machine_type = "${lookup(var.cluster, "machineType")}"
+        oauth_scopes = [
+          "https://www.googleapis.com/auth/devstorage.read_only",
+          "https://www.googleapis.com/auth/logging.write",
+          "https://www.googleapis.com/auth/monitoring",
+          "https://www.googleapis.com/auth/service.management.readonly",
+          "https://www.googleapis.com/auth/servicecontrol",
+          "https://www.googleapis.com/auth/trace.append",
+        ]
 
-  node_config {
-    machine_type = "${lookup(var.cluster, "machineType")}"
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/devstorage.read_only",
-      "https://www.googleapis.com/auth/logging.write",
-      "https://www.googleapis.com/auth/monitoring",
-      "https://www.googleapis.com/auth/service.management.readonly",
-      "https://www.googleapis.com/auth/servicecontrol",
-      "https://www.googleapis.com/auth/trace.append",
-    ]
+        tags = ["game-server"]
+        timeouts {
+          create = "30m"
+          update = "40m"
+        }
+      }
+    },
+    {
+    name       = "agones-system"
+    node_count = 1
+    node_config {
+      preemptible  = true
+      machine_type = "n1-standard-4"
 
-    tags = ["game-server"]
-  }
+      oauth_scopes = [
+        "https://www.googleapis.com/auth/devstorage.read_only",
+        "https://www.googleapis.com/auth/logging.write",
+        "https://www.googleapis.com/auth/monitoring",
+        "https://www.googleapis.com/auth/service.management.readonly",
+        "https://www.googleapis.com/auth/servicecontrol",
+        "https://www.googleapis.com/auth/trace.append",
+      ]
+      labels = {
+        "stable.agones.dev/agones-system" = "true"
+      }
+      taint = {
+          key = "stable.agones.dev/agones-system"
+          value = "true"
+          effect = "NO_EXECUTE"
+      }
+    }
+    },
+    {
+      name       = "agones-metrics"
+      node_count = 1
+
+      node_config {
+        preemptible  = true
+        machine_type = "n1-standard-4"
+
+        oauth_scopes = [
+          "https://www.googleapis.com/auth/devstorage.read_only",
+          "https://www.googleapis.com/auth/logging.write",
+          "https://www.googleapis.com/auth/monitoring",
+          "https://www.googleapis.com/auth/service.management.readonly",
+          "https://www.googleapis.com/auth/servicecontrol",
+          "https://www.googleapis.com/auth/trace.append",
+        ]
+        labels = {
+          "stable.agones.dev/agones-metrics" = "true"
+        }
+        taint = {
+            key = "stable.agones.dev/agones-metrics"
+            value = "true"
+            effect = "NO_EXECUTE"
+        }
+      }
+    }
+  ]
 }
 
-resource "google_container_node_pool" "system_nodes" {
-  name       = "agones-system"
-  location       = "${lookup(var.cluster, "zone")}"
-  project    = "${lookup(var.cluster, "project")}"
-  provider   = "google-beta"
-  cluster    = "${google_container_cluster.primary.name}"
-  node_count = 1
-
-  node_config {
-    preemptible  = true
-    machine_type = "n1-standard-4"
-
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/devstorage.read_only",
-      "https://www.googleapis.com/auth/logging.write",
-      "https://www.googleapis.com/auth/monitoring",
-      "https://www.googleapis.com/auth/service.management.readonly",
-      "https://www.googleapis.com/auth/servicecontrol",
-      "https://www.googleapis.com/auth/trace.append",
-    ]
-    labels = {
-      "stable.agones.dev/agones-system" = "true"
-    }
-    taint = {
-        key = "stable.agones.dev/agones-system"
-        value = "true"
-        effect = "NO_EXECUTE"
-    }
-  }
-}
-
-resource "google_container_node_pool" "metric-nodes" {
-  name       = "agones-metrics"
-  location       = "${lookup(var.cluster, "zone")}"
-  project    = "${lookup(var.cluster, "project")}"
-  provider   = "google-beta"
-  cluster    = "${google_container_cluster.primary.name}"
-  node_count = 1
-
-  node_config {
-    preemptible  = true
-    machine_type = "n1-standard-4"
-
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/devstorage.read_only",
-      "https://www.googleapis.com/auth/logging.write",
-      "https://www.googleapis.com/auth/monitoring",
-      "https://www.googleapis.com/auth/service.management.readonly",
-      "https://www.googleapis.com/auth/servicecontrol",
-      "https://www.googleapis.com/auth/trace.append",
-    ]
-    labels = {
-      "stable.agones.dev/agones-metrics" = "true"
-    }
-    taint = {
-        key = "stable.agones.dev/agones-metrics"
-        value = "true"
-        effect = "NO_EXECUTE"
-    }
-  }
-}
 resource "google_compute_firewall" "default" {
   name    = "game-server-firewall-firewall"
   project = "${lookup(var.cluster, "project")}"

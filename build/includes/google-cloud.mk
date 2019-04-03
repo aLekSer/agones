@@ -61,7 +61,7 @@ gcloud-terraform-cluster:
 	$(MAKE) setup-test-cluster
 
 gcloud-terraform-destroy-cluster:
-	$(DOCKER_RUN) bash -c ' \
+	$(DOCKER_RUN) bash -c ' export TF_VAR_password="1234567890123456" && \
 	cd $(mount_path)/build && terraform destroy -auto-approve' 
 
 clean-gcloud-test-cluster: $(ensure-build-image)
