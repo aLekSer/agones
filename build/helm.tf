@@ -14,6 +14,7 @@ resource "kubernetes_service_account" "tiller" {
 }
 
 resource "kubernetes_cluster_role_binding" "tiller" {
+  depends_on = ["kubernetes_service_account.tiller"]
   metadata {
     name = "tiller"
   }
@@ -69,12 +70,9 @@ data "helm_repository" "agones" {
     name = "agones"
     url  = "https://agones.dev/chart/stable"
 }
+
 resource "helm_release" "agones" {
-  name  = "kube-lego"
-  chart = "stable/kube-lego"
-}
-resource "helm_release" "agones2" {
-  #depends_on = ["kubernetes_cluster_role_binding.tiller"]
+  depends_on = ["kubernetes_cluster_role_binding.tiller"]
   name  = "agones"
   force_update = "true"
   repository = "${data.helm_repository.agones.metadata.0.name}"
@@ -137,16 +135,21 @@ resource "kubernetes_cluster_role_binding" "helm-hook-cleanup" {
 }
 */
 
+/*
 resource "kubernetes_cluster_role" "tiller-manager" {
     metadata {
         name = "tiller-manager"
     }
 
     rule {
-      
-        api_groups = ["", "extensions", "apps"]
-        resources  =  ["configmaps", "secrets"]
+        api_groups = [""]
+        resources  =  ["configmaps"]
+        verbs      = ["list"]
+      /*
+        api_groups = ["*"]
+        resources  =  ["*"]
         verbs      = ["*" ]
+  
     }
 } 
 
@@ -158,7 +161,7 @@ resource "kubernetes_cluster_role_binding" "tiller2" {
   role_ref {
     kind      = "ClusterRole"
     name      = "tiller-manager"
-    api_group = "rbac.authorization.k8s.io"
+    api_group = "rbac.authorization.k8s.io/v1"
   }
 
   subject {
@@ -169,3 +172,4 @@ resource "kubernetes_cluster_role_binding" "tiller2" {
     namespace = "kube-system"
   }
 }
+*/
