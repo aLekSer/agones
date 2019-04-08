@@ -39,8 +39,22 @@ provider "helm" {
   debug           = true
   install_tiller  = true
   service_account = "${kubernetes_service_account.tiller.metadata.0.name}"
-  namespace       = "${kubernetes_service_account.tiller.metadata.0.namespace}"
-  tiller_image    = "gcr.io/kubernetes-helm/tiller:v2.11.0"
+  #namespace       = "${kubernetes_service_account.tiller.metadata.0.namespace}"
+  tiller_image    = "gcr.io/kubernetes-helm/tiller:v2.12.3"
+
+  kubernetes {
+  load_config_file = false
+    host                   = "https://${google_container_cluster.primary.endpoint}"
+  token = "${data.google_client_config.default.access_token}"
+  cluster_ca_certificate = "${base64decode(google_container_cluster.primary.master_auth.0.cluster_ca_certificate)}"
+  /*
+    host                   = "https://${google_container_cluster.primary.endpoint}"
+    cluster_ca_certificate = "${base64decode(google_container_cluster.primary.master_auth.0.cluster_ca_certificate)}"
+    client_certificate     = "${base64decode(google_container_cluster.primary.master_auth.0.client_certificate)}"
+    client_key             = "${base64decode(google_container_cluster.primary.master_auth.0.client_key)}"
+ */
+  }
+  
 }
 /*
   kubernetes {
@@ -60,7 +74,7 @@ resource "helm_release" "agones" {
   chart = "stable/kube-lego"
 }
 resource "helm_release" "agones2" {
-  depends_on = ["kubernetes_cluster_role_binding.tiller"]
+  #depends_on = ["kubernetes_cluster_role_binding.tiller"]
   name  = "agones"
   force_update = "true"
   repository = "${data.helm_repository.agones.metadata.0.name}"
@@ -91,7 +105,18 @@ resource "null_resource" "helm_update" {
   }
 }
 
+
+data "google_client_config" "default" {}
+
 provider "kubernetes" {
+  load_config_file = false
+    host                   = "https://${google_container_cluster.primary.endpoint}"
+  token = "${data.google_client_config.default.access_token}"
+  cluster_ca_certificate = "${base64decode(google_container_cluster.primary.master_auth.0.cluster_ca_certificate)}"
+
+   # cluster_ca_certificate = "${base64decode(google_container_cluster.primary.master_auth.0.cluster_ca_certificate)}"
+   # client_certificate     = "${base64decode(google_container_cluster.primary.master_auth.0.client_certificate)}"
+   # client_key             = "${base64decode(google_container_cluster.primary.master_auth.0.client_key)}"
 }
 
 /*
@@ -111,3 +136,36 @@ resource "kubernetes_cluster_role_binding" "helm-hook-cleanup" {
   }
 }
 */
+
+resource "kubernetes_cluster_role" "tiller-manager" {
+    metadata {
+        name = "tiller-manager"
+    }
+
+    rule {
+      
+        api_groups = ["", "extensions", "apps"]
+        resources  =  ["configmaps", "secrets"]
+        verbs      = ["*" ]
+    }
+} 
+
+resource "kubernetes_cluster_role_binding" "tiller2" {
+  metadata {
+    name = "tiller2"
+  }
+
+  role_ref {
+    kind      = "ClusterRole"
+    name      = "tiller-manager"
+    api_group = "rbac.authorization.k8s.io"
+  }
+
+  subject {
+    kind = "ServiceAccount"
+    name = "tiller"
+
+    api_group = ""
+    namespace = "kube-system"
+  }
+}
