@@ -148,7 +148,7 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_compute_firewall" "default" {
-  name    = "game-server-firewall-firewall"
+  name    = "game-server-firewall-firewall-${lookup(var.cluster, "name")}"
   project = "${lookup(var.cluster, "project")}"
   network = "${google_compute_network.default.name}"
 
@@ -162,7 +162,7 @@ resource "google_compute_firewall" "default" {
 
 resource "google_compute_network" "default" {
   project = "${lookup(var.cluster, "project")}"
-  name    = "agones-network"
+  name    = "agones-network-${lookup(var.cluster, "name")}"
 }
 
 
