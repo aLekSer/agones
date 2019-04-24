@@ -44,7 +44,7 @@ build-sdks: COMMAND := build
 build-sdks: run-all-sdk-command
 
 # Builds a single sdk, use SDK_FOLDER variable to specify the sdk folder.
-build-sdk: COMMAND := build
+build-sdk: COMMAND := built
 build-sdk: run-sdk-command
 
 # Generates grpc server and client for all supported languages.
@@ -60,8 +60,8 @@ run-all-sdk-command:
 	cd $(sdk_build_folder); \
 	for d in */ ; do \
 		if [ "$${d%?}" != "tool" ] &&  [ -f $$d/$(COMMAND).sh ]; then  \
-			( cd .. && $(MAKE) run-sdk-command COMMAND=$(COMMAND) SDK_FOLDER=$${d%?} ) \
-			|| { failed=1; break; }; \
+			(((cd .. && $(MAKE) run-sdk-command COMMAND=$(COMMAND) SDK_FOLDER=$${d%?} ) \
+			|| { failed=1; break; }; ) & ) \
 		fi \
 	done; \
 	if (( failed )); then \
