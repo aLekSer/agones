@@ -74,6 +74,7 @@ webhooks:
           - "fleets"
           - "gameservers"
           - "gameserversets"
+          - "gameservers/status"
         apiVersions:
           - "v1"
         operations:
@@ -83,13 +84,7 @@ webhooks:
         resources:
           - "fleets"
           - "gameserversets"
-        apiVersions:
-          - "v1"
-        operations:
-          - UPDATE
-      - apiGroups:
-          - autoscaling.agones.dev
-        resources:
+          - "gameservers/status"
           - "fleetautoscalers"
         apiVersions:
           - "v1"
@@ -126,6 +121,7 @@ webhooks:
           - agones.dev
         resources:
           - "gameservers"
+          - "gameservers/status"
           - "fleets"
         apiVersions:
           - "v1"

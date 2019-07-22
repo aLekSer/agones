@@ -282,10 +282,11 @@ func (s *SDKServer) updateState() error {
 		gs.Status.ReservedUntil = nil
 	}
 	s.gsUpdateMutex.RUnlock()
-
-	_, err = gameServers.Update(gs)
+	// Using Status Endpoint for SDK Server
+	// Status changes are ignored on the main resource endpoint.
+	_, err = gameServers.UpdateStatus(gs)
 	if err != nil {
-		return errors.Wrapf(err, "could not update GameServer %s/%s to state %s", s.namespace, s.gameServerName, gs.Status.State)
+		return err
 	}
 
 	message := "SDK state change"

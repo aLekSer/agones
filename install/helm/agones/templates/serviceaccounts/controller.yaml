@@ -50,7 +50,7 @@ rules:
   resources: ["customresourcedefinitions"]
   verbs: ["get"]
 - apiGroups: ["agones.dev"]
-  resources: ["gameservers", "gameserversets"]
+  resources: ["gameservers", "gameserversets", "gameservers/status"]
   verbs: ["create", "delete", "get", "list", "update", "watch"]
 - apiGroups: ["agones.dev"]
   resources: ["gameservers"]

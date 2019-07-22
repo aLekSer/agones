@@ -47,8 +47,13 @@ rules:
 - apiGroups: ["apiextensions.k8s.io"]
   resources: ["customresourcedefinitions"]
   verbs: ["get"]
+<<<<<<< HEAD
 - apiGroups: ["agones.dev"]
   resources: ["gameservers", "gameserversets"]
+=======
+- apiGroups: ["stable.agones.dev"]
+  resources: ["gameservers", "gameserversets", "gameservers/status"]
+>>>>>>> Introduce Gameserver Status subresource
   verbs: ["create", "delete", "get", "list", "update", "watch"]
 - apiGroups: ["agones.dev"]
   resources: ["gameservers"]
@@ -158,8 +163,13 @@ rules:
 - apiGroups: [""]
   resources: ["events"]
   verbs: ["create"]
+<<<<<<< HEAD
 - apiGroups: ["agones.dev"]
   resources: ["gameservers"]
+=======
+- apiGroups: ["stable.agones.dev"]
+  resources: ["gameservers", "gameservers/status"]
+>>>>>>> Introduce Gameserver Status subresource
   verbs: ["list", "update", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -621,6 +631,8 @@ spec:
                   type: integer
                   minimum: 1
                   maximum: 2147483648
+  subresources:
+    status: {}
 
 ---
 # Source: agones/templates/crds/gameserverallocationpolicy.yaml
@@ -1442,6 +1454,12 @@ webhooks:
           - "fleets"
           - "gameservers"
           - "gameserversets"
+<<<<<<< HEAD
+=======
+          - "gameservers/status"
+          - "fleetallocations"
+          - "fleetautoscalers"
+>>>>>>> Introduce Gameserver Status subresource
         apiVersions:
           - "v1"
         operations:
@@ -1451,6 +1469,7 @@ webhooks:
         resources:
           - "fleets"
           - "gameserversets"
+<<<<<<< HEAD
         apiVersions:
           - "v1"
         operations:
@@ -1458,6 +1477,10 @@ webhooks:
       - apiGroups:
           - autoscaling.agones.dev
         resources:
+=======
+          - "gameservers/status"
+          - "fleetallocations"
+>>>>>>> Introduce Gameserver Status subresource
           - "fleetautoscalers"
         apiVersions:
           - "v1"
@@ -1490,6 +1513,7 @@ webhooks:
           - agones.dev
         resources:
           - "gameservers"
+          - "gameservers/status"
           - "fleets"
         apiVersions:
           - "v1"
