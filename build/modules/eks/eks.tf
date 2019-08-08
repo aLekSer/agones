@@ -12,53 +12,94 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+terraform {
+  required_version = ">= 0.12.0"
+}
+
 provider "aws" {
-  version = ">= 2.11"
+  version = "~> 2.32"
   region  = var.region
 }
 
-
-resource "aws_vpc" "example" {
- cidr_block = "10.0.0.0/16"
- enable_dns_hostnames = true
- enable_dns_support = true
- tags = "${
-   map(
-    "Name", "terraform-eks",
-    "kubernetes.io/cluster/example", "shared",
-   )
- }"
+data "aws_availability_zones" "available" {
 }
 
-resource "aws_vpc" "main" {
-cidr_block = "10.0.0.0/16"
-enable_dns_hostnames = true
-enable_dns_support = true
-tags = "${
-   map(
-    "Name", "terraform-eks",
-    "kubernetes.io/cluster/example", "shared",
-   )
-}"
+resource "aws_security_group" "worker_group_mgmt_one" {
+  name_prefix = "worker_group_mgmt_one"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
+
+    cidr_blocks = [
+      "10.0.0.0/8",
+    ]
+  }
+  ingress {
+    from_port = 7000
+    to_port   = 8000
+    protocol  = "udp"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
-#
-# main EKS terraform resource definition
-#
-resource "aws_eks_cluster" "main" {
-  name = "${var.cluster_name}"
-  worker_groups = [
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "2.17.0"
+
+  name                 = "test-vpc-lt"
+  cidr                 = "10.0.0.0/16"
+  azs                  = data.aws_availability_zones.available.names
+  public_subnets       = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+  enable_dns_hostnames = false
+
+  tags = {
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+  }
+}
+
+module "eks" {
+  source          = "git::github.com/terraform-aws-modules/terraform-aws-eks.git?ref=c9986f5e01c785875cb1e9cfa21ba195ef1bbab7"
+  cluster_name    = "${var.cluster_name}"
+  subnets         = module.vpc.public_subnets
+  vpc_id          = module.vpc.vpc_id
+  cluster_version = "1.12"
+
+  worker_groups_launch_template = [
     {
-      name                          = "worker-group-1"
-      instance_type                 = "t2.micro"
-      asg_desired_capacity          = 5
+      name                          = "default"
+      instance_type                 = "${var.machine_type}"
+      asg_desired_capacity          = 3
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
+      public_ip                     = true
+    },
+    // Node Pools with taints for metrics and system
+    {
+      name                 = "agones-system"
+      instance_type        = "${var.machine_type}"
+      asg_desired_capacity = 1
+      kubelet_extra_args   = "--node-labels=agones.dev/agones-system=true --register-with-taints=agones.dev/agones-system=true:NoExecute"
+      public_ip = true
     },
     {
-      name                          = "worker-group-2"
-      instance_type                 = "t2.micro"
-      additional_security_group_ids = [aws_security_group.worker_group_mgmt_two.id]
-      asg_desired_capacity          = 5
-    },
+      name                 = "agones-metrics"
+      instance_type        = "${var.machine_type}"
+      asg_desired_capacity = 1
+      kubelet_extra_args   = "--node-labels=agones.dev/agones-metrics=true --register-with-taints=agones.dev/agones-metrics=true:NoExecute"
+      public_ip = true
+    }
   ]
 }
