@@ -15,6 +15,7 @@
 package e2e
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -32,6 +33,39 @@ import (
 const (
 	fakeIPAddress = "192.1.1.2"
 )
+
+func TestShutdownBeforeReady(t *testing.T) {
+	t.Parallel()
+
+	gs := defaultGameServer()
+	command := []string{"/home/server/server", "--simulateFailure", "2"}
+	gs.Spec.Template.Spec.Containers[0].Command = command
+	newGS, err := framework.AgonesClient.AgonesV1().GameServers(defaultNs).Create(gs)
+	if err != nil {
+		logrus.WithField("name", newGS.ObjectMeta.Name).Info("GameServer creating failed")
+	}
+
+	logrus.WithField("name", newGS.ObjectMeta.Name).Info("GameServer created, waiting for Unhealthy state")
+
+	_, err = framework.WaitForGameServerState(newGS, agonesv1.GameServerStateUnhealthy, 40*time.Second)
+	assert.Nil(t, err)
+
+	time.Sleep(30 * time.Second)
+	// Before Ready should results in multiple restarts
+	commandBeforeReady := []string{"/home/server/server", "--simulateFailure", "1"}
+	gs.Spec.Template.Spec.Containers[0].Command = commandBeforeReady
+	newGS, err = framework.AgonesClient.AgonesV1().GameServers(defaultNs).Create(gs)
+	if err != nil {
+		logrus.WithField("name", newGS.ObjectMeta.Name).Info("GameServer creating failed")
+	}
+
+	_, err = framework.WaitForGameServerState(newGS, agonesv1.GameServerStateScheduled, 40*time.Second)
+	time.Sleep(30 * time.Second)
+	pod, err := framework.KubeClient.CoreV1().Pods(defaultNs).Get(newGS.ObjectMeta.Name, metav1.GetOptions{})
+	fmt.Println(pod.Status.ContainerStatuses[1].RestartCount)
+	assert.True(t, pod.Status.ContainerStatuses[1].RestartCount+pod.Status.ContainerStatuses[0].RestartCount > 0, "Container should be restarted")
+	assert.Nil(t, err)
+}
 
 func TestCreateConnect(t *testing.T) {
 	t.Parallel()

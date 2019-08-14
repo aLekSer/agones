@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"flag"
 	"log"
+	"math/rand"
 	"net"
 	"os"
 	"strconv"
@@ -36,6 +37,7 @@ func main() {
 	go doSignal()
 
 	port := flag.String("port", "7654", "The port to listen to udp traffic on")
+	simulateFailure := flag.Int("simulateFailure", 0, "Simulate the failure: 0 - turned off, 1 - exit before Ready, 2 - exit after Ready, 3 - randomly fail before Ready state")
 	passthrough := flag.Bool("passthrough", false, "Get listening port from the SDK, rather than use the 'port' value")
 	flag.Parse()
 	if ep := os.Getenv("PORT"); ep != "" {
@@ -75,8 +77,19 @@ func main() {
 	defer conn.Close() // nolint: errcheck
 
 	log.Print("Marking this server as ready")
+	if *simulateFailure == 1 {
+		os.Exit(1)
+	} else if *simulateFailure == 3 {
+		rand.Seed(time.Now().UTC().UnixNano())
+		if rand.Int()%2 == 0 {
+			os.Exit(1)
+		}
+	}
 	ready(s)
 
+	if *simulateFailure == 2 {
+		os.Exit(1)
+	}
 	readWriteLoop(conn, stop, s)
 }
 

@@ -183,6 +183,13 @@ func (hc *HealthController) syncGameServer(key string) error {
 		return nil
 	}
 
+	if !(gs.Status.State == agonesv1.GameServerStateReady ||
+		gs.Status.State == agonesv1.GameServerStateReserved ||
+		gs.Status.State == agonesv1.GameServerStateAllocated ||
+		gs.Status.State == agonesv1.GameServerStateRequestReady) {
+		return nil
+	}
+
 	hc.loggerForGameServer(gs).Info("Issue with GameServer pod, marking as GameServerStateUnhealthy")
 	gsCopy := gs.DeepCopy()
 	gsCopy.Status.State = agonesv1.GameServerStateUnhealthy
