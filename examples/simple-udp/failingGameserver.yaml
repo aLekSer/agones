@@ -17,6 +17,8 @@ kind: GameServer
 metadata:
   generateName: "simple-udp-"
 spec:
+  health:
+    disabled: true
   ports:
   - name: default
     portPolicy: Dynamic
@@ -26,6 +28,7 @@ spec:
       containers:
       - name: simple-udp
         image: gcr.io/agones-alexander/udp-server:0.15
+        imagePullPolicy: Always
         resources:
           requests:
             memory: "32Mi"
@@ -33,5 +36,5 @@ spec:
           limits:
             memory: "32Mi"
             cpu: "20m"
-        command: ['/home/server/server', '--simulateFailure', '2']
+        command: ['/home/server/server', '--simulateFailure', '3']
 

@@ -261,13 +261,13 @@ func (s *SDKServer) updateState() error {
 
 	// If we are currently in shutdown/being deleted, there is no escaping.
 	if gs.IsBeingDeleted() {
-		s.logger.Info("GameServerState being shutdown. Skipping update.")
+		s.logger.Info("GameServerState is being shutdown. Skipping update.")
 		return nil
 	}
 
 	// If the state is currently unhealthy, you can't go back to Ready.
 	if gs.Status.State == agonesv1.GameServerStateUnhealthy {
-		s.logger.Info("GameServerState already unhealthy. Skipping update.")
+		s.logger.Info("GameServerState is already unhealthy. Skipping update.")
 		return nil
 	}
 

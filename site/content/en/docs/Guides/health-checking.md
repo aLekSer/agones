@@ -25,13 +25,13 @@ giving it a chance to heal if it there is an issue.
 The following is the process for what happens to a `GameServer` when it is unhealthy.
 
 1. If any of the GameServer container fails health checking, or exits before the GameServer moves to `Ready` then, 
-   it is restart as per the `restartPolicy` (which defaults to "Always")
-1. If the GameServer container fails healthy checking after the `Ready` state, then it doesn't restart, 
+   it will be restarted or not depending on the `restartPolicy` (which defaults to "Always")
+1. If the GameServer container fails health checking after the `Ready` state, then it doesn't restart,
    but moves the GameServer to an `Unhealthy` state.
-1. If the GameServer container exits while in `Ready` state, it will restart as per the `restartPolicy` 
+1. If the GameServer container exits while in `Ready` state, it will be restarted as per the `restartPolicy` 
    (which defaults to "Always", since `RestartPolicy` is a Pod wide setting), 
    but will immediately move to an `Unhealthy` state.
-1. If the SDK sidecar fails, then it wiil restarted, assuming the `RestartPolicy` is Always/OnFailure.
+1. If the SDK sidecar fails, then it will be restarted, assuming the `RestartPolicy` is Always/OnFailure.
 
 ## Reference
 ```yaml

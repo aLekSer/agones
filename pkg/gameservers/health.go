@@ -86,6 +86,16 @@ func NewHealthController(health healthcheck.Handler,
 			pod := newObj.(*corev1.Pod)
 			if isGameServerPod(pod) && hc.isUnhealthy(pod) {
 				owner := metav1.GetControllerOf(pod)
+				gs, err := hc.gameServerLister.GameServers(pod.ObjectMeta.Namespace).Get(owner.Name)
+				if err == nil {
+					// Give more chances to container to restart before Ready
+					if (gs.Status.State == agonesv1.GameServerStateScheduled ||
+						gs.Status.State == agonesv1.GameServerStateStarting || 
+						gs.Status.State == agonesv1.GameServerStateCreating ||
+						gs.Status.State == agonesv1.GameServerStatePortAllocation ) && hc.failedContainer(pod) {
+						return
+					}
+				}
 				hc.workerqueue.Enqueue(cache.ExplicitKey(pod.ObjectMeta.Namespace + "/" + owner.Name))
 			}
 		},
@@ -157,7 +167,8 @@ func (hc *HealthController) loggerForGameServer(gs *agonesv1.GameServer) *logrus
 	return hc.loggerForGameServerKey(gsName).WithField("gs", gs)
 }
 
-// syncGameServer sets the GameSerer to Unhealthy, if its state is Ready
+// syncGameServer sets the GameSerer to Unhealthy, if its state is one of Ready, Reserverd, Allocated,
+// RequestReady or Scheduled
 func (hc *HealthController) syncGameServer(key string) error {
 	hc.loggerForGameServerKey(key).Info("Synchronising")
 
@@ -180,13 +191,6 @@ func (hc *HealthController) syncGameServer(key string) error {
 
 	// at this point we don't care, we're already Unhealthy / deleting
 	if gs.IsBeingDeleted() || gs.Status.State == agonesv1.GameServerStateUnhealthy {
-		return nil
-	}
-
-	if !(gs.Status.State == agonesv1.GameServerStateReady ||
-		gs.Status.State == agonesv1.GameServerStateReserved ||
-		gs.Status.State == agonesv1.GameServerStateAllocated ||
-		gs.Status.State == agonesv1.GameServerStateRequestReady) {
 		return nil
 	}
 
