@@ -53,7 +53,7 @@ spec:
 We recommend using `metadata > generateName`, to declare to Kubernetes that a unique
 name for the `GameServerAllocation` is generated when the `GameServerAllocation` is created.
 
-The `spec` field is the actual `GameServerAllocation` specification and it is composed as follow:
+The `spec` field is the actual `GameServerAllocation` specification and it is composed as follows:
 
 - `required` is a [label selector](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) 
    (matchLabels and/or matchExpressions) from which to choose GameServers from.

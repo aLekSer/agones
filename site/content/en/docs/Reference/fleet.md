@@ -83,7 +83,7 @@ This is a very common pattern in the Kubernetes ecosystem.
 
 The length of the `name` field of the fleet should be at most 63 characters.
 
-The `spec` field is the actual `Fleet` specification and it is composed as follow:
+The `spec` field is the actual `Fleet` specification and it is composed as follows:
 
 - `replicas` is the number of `GameServers` to keep Ready or Allocated in this Fleet
 - `scheduling` defines how GameServers are organised across the cluster. Affects backing Pod scheduling, as well as scale

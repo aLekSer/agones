@@ -80,7 +80,7 @@ but also attach specific [annotations](https://kubernetes.io/docs/concepts/overv
 
 The length of the `name` field of the Gameserver should not exceed 63 characters.
 
-The `spec` field is the actual GameServer specification and it is composed as follow:
+The `spec` field is the actual GameServer specification and it is composed as follows:
 
 - `container` is the name of container running the GameServer in case you have more than one container defined in the [pod](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/). If you do,  this is a mandatory field. For instance this is useful if you want to run a sidecar to ship logs.
 - `ports` are an array of ports that can be exposed as direct connections to the game server container
