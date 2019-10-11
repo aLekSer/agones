@@ -72,11 +72,13 @@ module "vpc" {
 }
 
 module "eks" {
-  source          = "git::github.com/terraform-aws-modules/terraform-aws-eks.git?ref=c9986f5e01c785875cb1e9cfa21ba195ef1bbab7"
+  source          = "git::github.com/terraform-aws-modules/terraform-aws-eks.git?ref=v6.0.2"
   cluster_name    = "${var.cluster_name}"
   subnets         = module.vpc.public_subnets
   vpc_id          = module.vpc.vpc_id
   cluster_version = "1.12"
+
+  worker_create_initial_lifecycle_hooks = true
 
   worker_groups_launch_template = [
     {

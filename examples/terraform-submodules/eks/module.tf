@@ -21,7 +21,7 @@ variable "agones_version" {
   default = "1.0.0"
 }
 variable "cluster_name" {
-  default = "agones-cluster"
+  default = "agones-cluster-my24"
 }
 
 variable "region" {
@@ -37,7 +37,7 @@ provider "aws" {
 variable "machine_type" { default = "t2.large" }
 
 module "eks_cluster" {
-  source = "git::https://github.com/googleforgames/agones.git//build/modules/eks/?ref=master"
+  source = "../../../build/modules/eks"
 
   machine_type = "${var.machine_type}"
   cluster_name = "${var.cluster_name}"
@@ -48,7 +48,7 @@ data "aws_eks_cluster_auth" "example" {
 }
 
 module "helm_agones" {
-  source = "git::https://github.com/googleforgames/agones.git//build/modules/helm/?ref=master"
+  source = "../../../build/modules/helm"
 
   udp_expose     = "false"
   agones_version = "${var.agones_version}"
