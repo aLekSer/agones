@@ -15,7 +15,7 @@
 ### Deploy cluster with Terraform
 terraform-init:
 	docker run --rm -it $(common_mounts) $(DOCKER_RUN_ARGS) $(build_tag) bash -c '\
-	cd $(mount_path)/build && terraform init && gcloud auth application-default login'
+	cd $(mount_path)/install/terraform && terraform init && gcloud auth application-default login'
 
 terraform-clean:
 	rm -r ./.terraform
@@ -32,7 +32,7 @@ ifndef GCP_PROJECT
 	$(eval GCP_PROJECT=$(shell sh -c "gcloud config get-value project 2> /dev/null"))
 endif
 	$(DOCKER_RUN) bash -c 'export TF_VAR_agones_version=$(AGONES_VERSION) && \
-		cd $(mount_path)/build && terraform apply -auto-approve -var values_file="" \
+		cd $(mount_path)/install/terraform && terraform apply -auto-approve -var values_file="" \
 		-var chart="agones" \
 	 	-var "cluster={name=\"$(GCP_CLUSTER_NAME)\", machineType=\"$(GCP_CLUSTER_NODEPOOL_MACHINETYPE)\", \
 		 zone=\"$(GCP_CLUSTER_ZONE)\", project=\"$(GCP_PROJECT)\", \
@@ -52,7 +52,7 @@ ifndef GCP_PROJECT
 	$(eval GCP_PROJECT=$(shell sh -c "gcloud config get-value project 2> /dev/null"))
 endif
 	$(DOCKER_RUN) bash -c ' \
-		cd $(mount_path)/build && terraform apply -auto-approve -var agones_version="$(VERSION)" -var image_registry="$(REGISTRY)" \
+		cd $(mount_path)/install/terraform && terraform apply -auto-approve -var agones_version="$(VERSION)" -var image_registry="$(REGISTRY)" \
 		-var pull_policy="$(IMAGE_PULL_POLICY)" \
 		-var always_pull_sidecar="$(ALWAYS_PULL_SIDECAR)" \
 		-var image_pull_secret="$(IMAGE_PULL_SECRET)" \
@@ -64,5 +64,5 @@ endif
 	$(MAKE) gcloud-auth-cluster
 
 gcloud-terraform-destroy-cluster:
-	$(DOCKER_RUN) bash -c 'cd $(mount_path)/build && \
+	$(DOCKER_RUN) bash -c 'cd $(mount_path)/install/terraform && \
 	 terraform destroy -auto-approve'
