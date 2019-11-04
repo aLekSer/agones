@@ -46,7 +46,7 @@ resource "kubernetes_cluster_role_binding" "tiller" {
 }
 
 variable "chart" {
-  default = "../install/helm/agones/"
+  default = "../helm/agones/"
 }
 
 variable "agones_version" {
@@ -82,7 +82,7 @@ variable "allocator_service_type" {
 }
 
 variable "values_file" {
-  default = "../install/helm/agones/values.yaml"
+  default = "../helm/agones/values.yaml"
 }
 
 data "google_client_config" "default" {}

@@ -18,8 +18,8 @@ terraform-init:
 	cd $(mount_path)/install/terraform && terraform init && gcloud auth application-default login'
 
 terraform-clean:
-	rm -r ./.terraform
-	rm ./terraform.tfstate*
+	rm -r ../install/terraform/.terraform
+	rm ../install/terraform/terraform.tfstate*
 
 # Creates a cluster and install release version of Agones controller
 # Version could be specified by AGONES_VERSION
