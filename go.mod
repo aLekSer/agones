@@ -9,6 +9,8 @@ require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/ahmetb/gen-crd-api-reference-docs v0.1.1
 	github.com/aws/aws-sdk-go v1.16.20 // indirect
+	github.com/dvyukov/go-fuzz v0.0.0-20191022152526-8cb203812681 // indirect
+	github.com/elazarl/go-bindata-assetfs v1.0.0 // indirect
 	github.com/evanphx/json-patch v4.5.0+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-openapi/spec v0.19.0
@@ -37,12 +39,12 @@ require (
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.3.1
+	github.com/stephens2424/writerset v1.0.2 // indirect
 	github.com/stretchr/testify v1.3.0
 	go.opencensus.io v0.18.0
-	golang.org/x/net v0.0.0-20190311183353-d8887717615a
-	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4 // indirect
+	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
 	golang.org/x/time v0.0.0-20180412165947-fbb02b2291d2
-	golang.org/x/tools v0.0.0-20190328211700-ab21143f2384
+	golang.org/x/tools v0.0.0-20191126055441-b0650ceb63d9
 	google.golang.org/api v0.0.0-20190117000611-43037ff31f69 // indirect
 	google.golang.org/genproto v0.0.0-20190111180523-db91494dd46c
 	google.golang.org/grpc v1.17.0
