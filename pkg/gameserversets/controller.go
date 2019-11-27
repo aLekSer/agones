@@ -424,8 +424,7 @@ func computeReconciliationAction(strategy apis.SchedulingStrategy, list []*agone
 			handleGameServerUp(gs)
 		case agonesv1.GameServerStateReady:
 			handleGameServerUp(gs)
-		case agonesv1.GameServerStateReserved:
-			handleGameServerUp(gs)
+		// GameServerStateReserved and GameServerStateAllocated handled above with !gs.IsDeletable()
 
 		// GameServerStateShutdown - already handled above
 		// GameServerStateAllocated - already handled above

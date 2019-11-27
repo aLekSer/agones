@@ -122,7 +122,15 @@ func readWriteLoop(conn net.PacketConn, stop chan struct{}, s *sdk.SDK) {
 			allocate(s)
 
 		case "RESERVE":
-			reserve(s)
+			switch len(parts) {
+			case 1:
+				reserve(s, 10)
+			case 3:
+				reserve(s, parts[1])
+			default:
+				respond(conn, sender, "ERROR: Invalid RESERVE command, must use zero or 2 arguments")
+				continue
+			}
 
 		case "WATCH":
 			watchGameServerEvents(s)
@@ -176,9 +184,9 @@ func allocate(s *sdk.SDK) {
 	}
 }
 
-// reserve for 10 seconds
-func reserve(s *sdk.SDK) {
-	if err := s.Reserve(10 * time.Second); err != nil {
+// reserve for a number of seconds
+func reserve(s *sdk.SDK, seconds int) {
+	if err := s.Reserve(time.Duration(seconds) * time.Second); err != nil {
 		log.Fatalf("could not reserve gameserver: %v", err)
 	}
 }
