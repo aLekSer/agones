@@ -15,7 +15,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20171101203131-84a468cf14b4 // indirect
 	github.com/golang/protobuf v1.3.2
 	github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c // indirect
-	github.com/google/gofuzz v1.0.0 // indirect
+	github.com/google/gofuzz v1.0.0
 	github.com/google/uuid v1.1.0 // indirect
 	github.com/googleapis/gnostic v0.1.0 // indirect
 	github.com/gregjones/httpcache v0.0.0-20181110185634-c63ab54fda8f // indirect
@@ -32,6 +32,7 @@ require (
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.8.1
+	github.com/programming-kubernetes/pizza-apiserver v0.0.0-20190505144740-d86c41ae03db
 	github.com/prometheus/client_golang v0.9.2
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/pflag v1.0.3
@@ -58,4 +59,4 @@ require (
 	sigs.k8s.io/yaml v1.1.0 // indirect
 )
 
-replace k8s.io/apimachinery => ./vendor_fixes/k8s.io/apimachinery
+//replace k8s.io/apimachinery => ./vendor_fixes/k8s.io/apimachinery

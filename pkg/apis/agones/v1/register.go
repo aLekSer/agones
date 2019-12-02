@@ -16,10 +16,10 @@ package v1
 
 import (
 	"agones.dev/agones/pkg/apis/agones"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	//metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8sruntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/kubernetes/scheme"
+	//"k8s.io/client-go/kubernetes/scheme"
 )
 
 // VersionAnnotation is the key for version annotation
@@ -27,7 +27,7 @@ import (
 const VersionAnnotation = agones.GroupName + "/sdk-version"
 
 // SchemeGroupVersion is group version used to register these objects
-var SchemeGroupVersion = schema.GroupVersion{Group: agones.GroupName, Version: "v1"}
+var SchemeGroupVersion = schema.GroupVersion{Group: agones.GroupName, Version: k8sruntime.APIVersionInternal}
 
 // Kind takes an unqualified kind and returns back a Group qualified GroupKind
 func Kind(kind string) schema.GroupKind {
@@ -46,11 +46,13 @@ var (
 	AddToScheme = SchemeBuilder.AddToScheme
 )
 
+/*
 func init() {
 	if err := AddToScheme(scheme.Scheme); err != nil {
 		panic(err)
 	}
 }
+*/
 
 // Adds the list of known types to api.Scheme.
 func addKnownTypes(scheme *k8sruntime.Scheme) error {
@@ -62,6 +64,6 @@ func addKnownTypes(scheme *k8sruntime.Scheme) error {
 		&Fleet{},
 		&FleetList{},
 	)
-	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
+	//metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }
