@@ -178,6 +178,19 @@ func NewController(
 			}
 		},
 	})
+	gss, err := gameServers.Lister().List(labels.Everything())
+	if err != nil {
+		c.baseLogger.WithError(err).Info("Could not get GameServers")
+	}
+	for _, gs  := range gss {
+		_, err := c.gameServerPod(gs)
+		if err != nil {
+			c.baseLogger.WithError(err).Info("Could not get GameServers")
+			gsCopy := gs.DeepCopy()
+			gsCopy.Status.State = agonesv1.GameServerStateUnhealthy
+			c.gameServerGetter.GameServers(gs.ObjectMeta.Namespace).Update(gsCopy)
+		}
+	}
 
 	return c
 }
