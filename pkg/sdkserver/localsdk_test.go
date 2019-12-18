@@ -115,6 +115,8 @@ func TestLocalSDKServerSetLabel(t *testing.T) {
 	}
 
 	for k, v := range fixtures {
+		k := k
+		v := v
 		t.Run(k, func(t *testing.T) {
 			ctx := context.Background()
 			e := &sdk.Empty{}
@@ -185,6 +187,8 @@ func TestLocalSDKServerSetAnnotation(t *testing.T) {
 	}
 
 	for k, v := range fixtures {
+		k := k
+		v := v
 		t.Run(k, func(t *testing.T) {
 			ctx := context.Background()
 			e := &sdk.Empty{}

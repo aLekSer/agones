@@ -126,6 +126,8 @@ func TestSidecarRun(t *testing.T) {
 	}
 
 	for k, v := range fixtures {
+		k := k
+		v := v
 		t.Run(k, func(t *testing.T) {
 			m := agtesting.NewMocks()
 			done := make(chan bool)
@@ -252,6 +254,8 @@ func TestSDKServerSyncGameServer(t *testing.T) {
 	}
 
 	for k, v := range fixtures {
+		k := k
+		v := v
 		t.Run(k, func(t *testing.T) {
 			m := agtesting.NewMocks()
 			sc, err := defaultSidecar(m)
@@ -327,6 +331,8 @@ func TestSidecarUpdateState(t *testing.T) {
 	}
 
 	for k, v := range fixtures {
+		k := k
+		v := v
 		t.Run(k, func(t *testing.T) {
 			m := agtesting.NewMocks()
 			sc, err := defaultSidecar(m)
@@ -450,6 +456,8 @@ func TestSidecarHealthy(t *testing.T) {
 	}
 
 	for k, v := range fixtures {
+		k := k
+		v := v
 		t.Run(k, func(t *testing.T) {
 			logrus.WithField("test", k).Infof("Test Running")
 			sc.health.Disabled = v.disabled

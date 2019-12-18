@@ -319,6 +319,8 @@ func TestGameServerApplyDefaults(t *testing.T) {
 	}
 
 	for name, test := range data {
+		name := name
+		test := test
 		t.Run(name, func(t *testing.T) {
 			test.gameServer.ApplyDefaults()
 
@@ -648,6 +650,7 @@ func TestGameServerIsBeforeReady(t *testing.T) {
 	}
 
 	for _, test := range fixtures {
+		test := test
 		t.Run(string(test.state), func(t *testing.T) {
 			gs := &GameServer{Status: GameServerStatus{State: test.state}}
 			assert.Equal(t, test.expected, gs.IsBeforeReady())

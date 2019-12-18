@@ -498,6 +498,7 @@ func TestControllerApplyDeploymentStrategy(t *testing.T) {
 	}
 
 	for k, v := range fixtures {
+		v := v
 		t.Run(k, func(t *testing.T) {
 			f := defaultFixture()
 			f.Spec.Strategy.Type = v.strategyType
@@ -762,6 +763,8 @@ func TestControllerRollingUpdateDeployment(t *testing.T) {
 	}
 
 	for k, v := range fixtures {
+		k := k
+		v := v
 		t.Run(k, func(t *testing.T) {
 			f := defaultFixture()
 			f.ApplyDefaults()

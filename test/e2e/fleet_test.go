@@ -957,6 +957,7 @@ func TestFleetRecreateGameServers(t *testing.T) {
 			podClient := framework.KubeClient.CoreV1().Pods(defaultNs)
 
 			for _, gs := range list.Items {
+				gs := gs
 				pod, err := podClient.Get(gs.ObjectMeta.Name, metav1.GetOptions{})
 				assert.NoError(t, err)
 
@@ -968,6 +969,7 @@ func TestFleetRecreateGameServers(t *testing.T) {
 		}},
 		"gameserver shutdown": {f: func(t *testing.T, list *agonesv1.GameServerList) {
 			for _, gs := range list.Items {
+				gs := gs
 				var reply string
 				reply, err := e2e.SendGameServerUDP(&gs, "EXIT")
 				if err != nil {
@@ -979,6 +981,7 @@ func TestFleetRecreateGameServers(t *testing.T) {
 		}},
 		"gameserver unhealthy": {f: func(t *testing.T, list *agonesv1.GameServerList) {
 			for _, gs := range list.Items {
+				gs := gs
 				var reply string
 				reply, err := e2e.SendGameServerUDP(&gs, "UNHEALTHY")
 				if err != nil {
@@ -1016,6 +1019,8 @@ func TestFleetRecreateGameServers(t *testing.T) {
 			v.f(t, list)
 
 			for i, gs := range list.Items {
+				i := i
+				gs := gs
 				err = wait.Poll(time.Second, 5*time.Minute, func() (done bool, err error) {
 					_, err = client.GameServers(defaultNs).Get(gs.ObjectMeta.Name, metav1.GetOptions{})
 

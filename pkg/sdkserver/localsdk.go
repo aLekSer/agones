@@ -124,6 +124,7 @@ func NewLocalSDKServer(filePath string) (*LocalSDKServer, error) {
 
 	go func() {
 		for value := range l.update {
+			value := value
 			logrus.Info("gameserver update received")
 			l.updateObservers.Range(func(observer, _ interface{}) bool {
 				observer.(chan struct{}) <- value

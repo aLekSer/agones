@@ -1057,6 +1057,7 @@ func TestControllerSyncGameServerRequestReadyState(t *testing.T) {
 	})
 
 	for _, s := range []agonesv1.GameServerState{"Unknown", agonesv1.GameServerStateUnhealthy} {
+		s := s
 		name := fmt.Sprintf("GameServer with %s state", s)
 		t.Run(name, func(t *testing.T) {
 			testNoChange(t, s, func(c *Controller, fixture *agonesv1.GameServer) (*agonesv1.GameServer, error) {
@@ -1170,6 +1171,8 @@ func TestControllerAddress(t *testing.T) {
 	dummyGS.Name = "some-gs"
 
 	for name, fixture := range fixture {
+		name := name
+		fixture := fixture
 		t.Run(name, func(t *testing.T) {
 			c, mocks := newFakeController()
 			pod := corev1.Pod{ObjectMeta: metav1.ObjectMeta{Name: "pod"},

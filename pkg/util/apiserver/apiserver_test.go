@@ -205,6 +205,7 @@ func TestSplitNameSpaceResource(t *testing.T) {
 	}
 
 	for _, test := range fixtures {
+		test := test
 		t.Run(test.path, func(t *testing.T) {
 			n, r, err := splitNameSpaceResource(test.path)
 			if test.expected.isError {

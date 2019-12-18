@@ -159,6 +159,8 @@ func TestFindGameServerForAllocationPacked(t *testing.T) {
 	}
 
 	for k, v := range fixtures {
+		k := k
+		v := v
 		t.Run(k, func(t *testing.T) {
 			controller, m := newFakeController()
 			c := controller.allocator.readyGameServerCache

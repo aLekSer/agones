@@ -81,6 +81,8 @@ func TestWebHookAddHandler(t *testing.T) {
 	}
 
 	for k, handles := range fixtures {
+		k := k
+		handles := handles
 		t.Run(k, func(t *testing.T) {
 
 			stop := make(chan struct{})
@@ -97,6 +99,7 @@ func TestWebHookAddHandler(t *testing.T) {
 			wh := NewWebHook(mux)
 
 			for _, th := range handles.handlers {
+				th := th
 				wh.AddHandler("/test", th.gk, th.op, func(review v1beta1.AdmissionReview) (v1beta1.AdmissionReview, error) {
 					assert.Equal(t, fixture.Request, review.Request)
 					assert.True(t, review.Response.Allowed)
@@ -149,6 +152,8 @@ func TestWebHookFleetValidationHandler(t *testing.T) {
 	}
 
 	for k, handles := range fixtures {
+		k := k
+		handles := handles
 		t.Run(k, func(t *testing.T) {
 
 			stop := make(chan struct{})

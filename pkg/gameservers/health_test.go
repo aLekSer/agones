@@ -161,6 +161,8 @@ func TestHealthControllerSkipUnhealthy(t *testing.T) {
 	}
 
 	for k, v := range fixtures {
+		k := k
+		v := v
 		t.Run(k, func(t *testing.T) {
 			m := agtesting.NewMocks()
 			hc := NewHealthController(healthcheck.NewHandler(), m.KubeClient, m.AgonesClient, m.KubeInformerFactory, m.AgonesInformerFactory)
@@ -241,6 +243,8 @@ func TestHealthControllerSyncGameServer(t *testing.T) {
 	}
 
 	for name, test := range fixtures {
+		name := name
+		test := test
 		t.Run(name, func(t *testing.T) {
 			m := agtesting.NewMocks()
 			hc := NewHealthController(healthcheck.NewHandler(), m.KubeClient, m.AgonesClient, m.KubeInformerFactory, m.AgonesInformerFactory)
