@@ -15,7 +15,7 @@
 FROM debian:stretch
 RUN useradd -m server
 RUN apt-get update && apt-get install -y curl  && apt-get clean
-RUN curl -sL https://deb.nodesource.com/setup_11.x | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
     apt-get install -y nodejs
 
 WORKDIR /home/server
