@@ -28,6 +28,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	apivalidation "k8s.io/kubernetes/pkg/apis/core/validation"
 )
 
 const (
@@ -392,6 +393,17 @@ func (gss *GameServerSpec) Validate(devAddress string) ([]metav1.StatusCause, bo
 	objMetaCauses := validateObjectMeta(&gss.Template.ObjectMeta)
 	if len(objMetaCauses) > 0 {
 		causes = append(causes, objMetaCauses...)
+	}
+	allErrs = append(allErrs, apivalidation.ValidatePodTemplateSpec(template, fldPath)...)
+
+	if len(errs) != 0 {
+		for _, v := range errs {
+			causes = append(causes, metav1.StatusCause{
+				Type:    metav1.CauseTypeFieldValueInvalid,
+				Field:   "other",
+				Message: v.Error(),
+			})
+		}
 	}
 
 	return causes, len(causes) == 0
