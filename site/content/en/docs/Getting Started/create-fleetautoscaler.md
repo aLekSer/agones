@@ -257,6 +257,7 @@ simple-udp-mzhrl-zg9rq   Ready     10.30.64.99    7745    minikube     5m
 
 {{< alert title="Note" color="info">}}
 If you want to update a `Fleet` which has `RollingUpdate` replacement strategy and is controlled by a `FleetAutoscaler`:
+
 1. With `kubectl apply`: you should omit `replicas` parameter in a `Fleet` Spec before re-applying the `Fleet` configuration.
 1. With `kubectl edit`: you should not change the `replicas` parameter in the `Fleet` Spec when updating other field parameters.
 
