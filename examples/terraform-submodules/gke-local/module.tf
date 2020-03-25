@@ -79,6 +79,7 @@ module "helm_agones" {
   host                   = module.gke_cluster.host
   token                  = module.gke_cluster.token
   cluster_ca_certificate = module.gke_cluster.cluster_ca_certificate
+  service_account = module.gke_cluster.service_account
 }
 
 output "host" {

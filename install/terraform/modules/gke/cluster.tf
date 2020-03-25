@@ -141,4 +141,56 @@ resource "google_compute_firewall" "default" {
   }
 
   target_tags = ["game-server"]
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+
+provider "kubernetes" {
+  version                = "~> 1.5, <=1.10"
+  load_config_file       = false
+  host                   = "https://${google_container_cluster.primary.endpoint}"
+  token                  = data.google_client_config.default.access_token
+  cluster_ca_certificate = base64decode(google_container_cluster.primary.master_auth.0.cluster_ca_certificate)
+}
+
+resource "kubernetes_service_account" "tiller" {
+  metadata {
+    name      = "tiller-${google_container_cluster.primary.id}"
+    namespace = "kube-system"
+  }
+
+  automount_service_account_token = true
+  depends_on = [
+    google_container_cluster.primary
+  ]
+}
+
+data "google_container_cluster" "primary" {
+  name     = var.cluster["name"]
+  location = var.cluster["zone"]
+  project  = var.cluster["project"]
+}
+
+resource "kubernetes_cluster_role_binding" "tiller" {
+  metadata {
+    name = "tiller"
+  }
+
+  role_ref {
+    kind      = "ClusterRole"
+    name      = "cluster-admin"
+    api_group = "rbac.authorization.k8s.io"
+  }
+
+  subject {
+    kind = "ServiceAccount"
+    name = kubernetes_service_account.tiller.metadata[0].name
+
+    api_group = ""
+    namespace = "kube-system"
+  }
+
+  depends_on = [kubernetes_service_account.tiller, google_container_cluster.primary]
 }

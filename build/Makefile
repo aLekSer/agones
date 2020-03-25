@@ -258,13 +258,16 @@ test-e2e-failure: $(ensure-build-image)
 
 # Runs end-to-end stress tests on the current configured cluster
 # For minikube user the minikube-stress-test-e2e targets
+# STRESS_TEST_LEVEL=1 make stress-test-e2e
 stress-test-e2e: $(ensure-build-image)
+stress-test-e2e: TESTED_VERSION ?= VERSION
 	$(GO_TEST) $(agones_package)/test/e2e $(ARGS) $(GO_E2E_TEST_ARGS) \
 		-timeout 1h \
 		-run '.*StressTest.*' \
 		--gameserver-image=$(GS_TEST_IMAGE) \
 		--pullsecret=$(IMAGE_PULL_SECRET) \
 		--stress $(STRESS_TEST_LEVEL) \
+		--version $(TESTED_VERSION) \
 		--perf-output $(PERF_OUTPUT_DIR)
 
 # Run test on install yaml - make sure there is no change

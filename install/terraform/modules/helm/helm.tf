@@ -12,51 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-resource "kubernetes_service_account" "tiller" {
-  metadata {
-    name      = "tiller"
-    namespace = "kube-system"
-  }
-
-  automount_service_account_token = true
-}
-
-resource "kubernetes_cluster_role_binding" "tiller" {
-  metadata {
-    name = "tiller"
-  }
-
-  role_ref {
-    kind      = "ClusterRole"
-    name      = "cluster-admin"
-    api_group = "rbac.authorization.k8s.io"
-  }
-
-  subject {
-    kind = "ServiceAccount"
-    name = "tiller"
-
-    api_group = ""
-    namespace = "kube-system"
-  }
-
-  depends_on = [kubernetes_service_account.tiller]
-}
-
-provider "kubernetes" {
-  version                = "~> 1.5, <=1.10"
-  load_config_file       = false
-  host                   = var.host
-  token                  = var.token
-  cluster_ca_certificate = var.cluster_ca_certificate
-}
-
 provider "helm" {
   version = "~> 0.9"
 
   debug           = true
   install_tiller  = true
-  service_account = kubernetes_service_account.tiller.metadata.0.name
+  service_account = var.service_account
   tiller_image    = "gcr.io/kubernetes-helm/tiller:v2.14.2"
 
   kubernetes {
@@ -71,8 +32,6 @@ provider "helm" {
 data "helm_repository" "agones" {
   name = "agones"
   url  = "https://agones.dev/chart/stable"
-
-  depends_on = [kubernetes_cluster_role_binding.tiller]
 }
 
 locals {
@@ -142,7 +101,8 @@ resource "helm_release" "agones" {
   version   = var.agones_version
   namespace = "agones-system"
 
-  depends_on = [null_resource.helm_init, kubernetes_cluster_role_binding.tiller]
+  depends_on = [null_resource.helm_init]
+
 }
 
 provider "null" {

@@ -22,6 +22,11 @@ variable "agones_version" {
   default = ""
 }
 
+variable "service_account" {
+  default = ""
+}
+
+
 variable "udp_expose" {
   default = "true"
 }
