@@ -1,0 +1,78 @@
+# Copyright 2017 Google LLC All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#
+# Google Cloud Builder CI configuration
+#
+
+steps:
+
+#
+# Creates the initial make + docker build platform
+#
+
+- name: "ubuntu"
+  args: ["bash", "-c", "echo 'FROM gcr.io/cloud-builders/docker\nRUN apt-get install make\nENTRYPOINT [\"/usr/bin/make\"]' > Dockerfile.build"]
+  waitFor: ['-']
+- name: "gcr.io/cloud-builders/docker"
+  id: build-make-docker
+  args: ['build', '-f', 'Dockerfile.build', '-t', 'make-docker', '.'] # we need docker and make to run everything.
+
+#
+# pull the main build image if it exists
+#
+- name: "make-docker"
+  id: pull-build-image
+  dir: "build"
+  args: ["pull-build-image"]
+  waitFor:
+    - build-make-docker
+
+#
+# pull the sdk bas
+#
+# build the e2e test runner
+#
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-f', 'Dockerfile', '-t', 'e2e-runner', '.']
+  dir: 'build/e2e-image'
+  id: build-e2e
+  waitFor: ['-']
+
+#
+# Push the build image, can run while we do other things.
+#
+
+
+#
+# Push the sdk base build image, which can also run while we do other things
+#
+#
+# Build all the images and sdks, and push them up to the repository
+#
+
+
+#
+
+- name: 'e2e-runner'
+  waitFor:
+    - build-e2e
+
+tags: ['ci']
+timeout: "3600s"
+logsBucket: "gs://agones-stress-test-logs2"
+#logsBucket: "gs://fortio-sync-2"
+options:
+ machineType: 'N1_HIGHCPU_8'
