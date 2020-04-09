@@ -16,6 +16,6 @@
 set -e
 echo "installing current release"
 DOCKER_RUN= make install VERSION=1.5.0-a8ffcb8
-echo "starting e2e test"
+echo "starting e2e test + ${VERSION}"
 DOCKER_RUN= make stress-test-e2e ARGS="-parallel=64 -v " STRESS_TEST_LEVEL=1
 echo "completed e2e test"

@@ -11,6 +11,6 @@ GCLOUD_PROJECT=agones-alexander
 
 gcloud container clusters get-credentials --zone "$CLOUDSDK_COMPUTE_ZONE" "$CLOUDSDK_CONTAINER_CLUSTER"
 
-gcloud builds submit . --config=/Users/alexander.apalikov/go/src/agones.dev/agones/test/load/cloudbuild.yaml
+gcloud builds submit . --config=./test/load/cloudbuild.yaml --substitutions=_VERSION=1.5.0-1f60bac
 #gcloud builds submit . --config=cloudbuild.yaml
 

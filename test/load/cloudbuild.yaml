@@ -63,13 +63,19 @@ steps:
 # Build all the images and sdks, and push them up to the repository
 #
 
-
-#
-
 - name: 'e2e-runner'
   waitFor:
     - build-e2e
+  env:
+    - VERSION=${_VERSION}
+  
 
+artifacts:
+  objects:
+    location: 'gs://fortio-sync-2'
+    paths: ['build/.perf/*.json']
+substitutions:
+    _VERSION: 1.5.0-3c5a86f
 tags: ['ci']
 timeout: "3600s"
 logsBucket: "gs://agones-stress-test-logs2"

@@ -1,5 +1,7 @@
 FROM gcr.io/cloud-builders/gcloud
 
+ENV VERSION="1.5.0-a8ffcb8"
+
 RUN apt-get update && \
     apt-get install -y wget psmisc make gcc python jq zip && \
     apt-get clean
