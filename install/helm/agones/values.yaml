@@ -69,6 +69,7 @@ agones:
     install: true
     resources: {}
     nodeSelector: {}
+    awsAnnotations: false
     tolerations:
     - key: "agones.dev/agones-system"
       operator: "Equal"

@@ -72,3 +72,7 @@ variable "ping_service_type" {
 variable "values_file" {
   default = ""
 }
+
+variable "aws_annotations" {
+  default = ""
+}

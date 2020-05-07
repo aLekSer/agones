@@ -95,6 +95,11 @@ metadata:
     chart: {{ template "agones.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+{{- if .Values.agones.ping.awsAnnotations }}
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: agones-http-ping.example.com
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+{{- end }}
 spec:
   selector:
     agones.dev/role: ping
@@ -119,6 +124,11 @@ metadata:
     chart: {{ template "agones.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+{{- if .Values.agones.ping.awsAnnotations }}
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: agones-udp-ping.example.com
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+{{- end }}
 spec:
   selector:
     agones.dev/role: ping

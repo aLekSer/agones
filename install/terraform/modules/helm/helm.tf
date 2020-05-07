@@ -149,6 +149,11 @@ resource "helm_release" "agones" {
     value = var.feature_gates
   }
 
+  set {
+    name = "agones.ping.awsAnnotations"
+    value = var.aws_annotations
+  }
+
   version   = var.agones_version
   namespace = "agones-system"
 
