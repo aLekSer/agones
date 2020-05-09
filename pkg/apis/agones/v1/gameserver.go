@@ -730,7 +730,7 @@ func (gs *GameServer) HasPortPolicy(policy PortPolicy) bool {
 	return false
 }
 
-// Status returns a GameServerSatusPort for this GameServerPort
+// Status returns a GameServerStatusPort for this GameServerPort
 func (p GameServerPort) Status() GameServerStatusPort {
 	return GameServerStatusPort{Name: p.Name, Port: p.HostPort}
 }
