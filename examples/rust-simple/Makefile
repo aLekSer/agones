@@ -37,8 +37,8 @@ server_tag = $(REPOSITORY)/rust-simple-server:0.7
 #                 |___/
 
 # Build the example Gameserver
-# alias for 'build-server'
-build: build-server
+# alias for 'build-image'
+build: build-image
 
 # Build the server binary
 build-server:

@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM rust:1.41.0 as builder
+FROM rust:1.43.1 as builder
 RUN useradd -m build
 
 # Rust SDK depends on https://github.com/pingcap/grpc-rs and it requires CMake and Go
 
 ## Cmake
-ENV CMAKE_MINOR_VERSION=v3.10 \
-    CMAKE_FULL_VERSION=3.10.3
+ENV CMAKE_MINOR_VERSION=v3.14 \
+    CMAKE_FULL_VERSION=3.14.1
 RUN mkdir -p /usr/src/cmake \
   && curl -fSLO https://cmake.org/files/${CMAKE_MINOR_VERSION}/cmake-${CMAKE_FULL_VERSION}.tar.gz \
   && curl -fSLO https://cmake.org/files/${CMAKE_MINOR_VERSION}/cmake-${CMAKE_FULL_VERSION}-SHA-256.txt \
