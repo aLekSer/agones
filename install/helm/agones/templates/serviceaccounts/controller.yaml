@@ -41,10 +41,7 @@ rules:
   resources: ["events"]
   verbs: ["create", "patch"]
 - apiGroups: [""]
-  resources: ["pods"]
-  verbs: ["create", "delete", "list", "watch"]
-- apiGroups: [""]
-  resources: ["nodes", "secrets"]
+  resources: ["nodes"]
   verbs: ["list", "watch"]
 - apiGroups: ["apiextensions.k8s.io"]
   resources: ["customresourcedefinitions"]
@@ -90,6 +87,44 @@ roleRef:
   kind: ClusterRole
   name: {{ .Values.agones.serviceaccount.controller }}
 ---
+#
+#
+#
+  {{- range .Values.gameservers.namespaces }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: controller
+  namespace: {{ . }}
+  labels:
+    app: "agones"
+    chart: "agones-1.7.0-rc"
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["create", "delete", "list", "watch"]
+- apiGroups: [""]
+  resources: ["nodes", "secrets"]
+  verbs: ["list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: controller-access
+  namespace: {{ . }}
+  labels:
+    app: "agones"
+    chart: "agones-1.7.0-rc"
+subjects:
+- kind: User
+  name: system:serviceaccount:agones-system:agones-controller
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: controller
+---
+  {{- end }}
 #
 # RBACs for APIService
 #

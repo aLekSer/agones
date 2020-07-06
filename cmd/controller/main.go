@@ -158,7 +158,11 @@ func main() {
 	api := apiserver.NewAPIServer(httpsServer.Mux)
 
 	agonesInformerFactory := externalversions.NewSharedInformerFactory(agonesClient, defaultResync)
-	kubeInformerFactory := informers.NewSharedInformerFactory(kubeClient, defaultResync)
+
+	//TODO: here should be a loop a map[namespace]kubeInformer and a loop to initiliase those
+	// for all gameservers.namespaces
+	// This version is working only for "default" namespace
+	kubeInformerFactory := informers.NewSharedInformerFactoryWithOptions(kubeClient, defaultResync, informers.WithNamespace("default"))
 
 	server := &httpServer{}
 	var rs []runner
