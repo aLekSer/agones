@@ -211,7 +211,7 @@ func (c *Controller) syncFleetAutoscaler(key string) error {
 	}
 
 	currentReplicas := fleet.Status.Replicas
-	desiredReplicas, scalingLimited, err := computeDesiredFleetSize(fas, fleet)
+	desiredReplicas, scalingLimited, err := c.computeDesiredFleetSize(fas, fleet)
 	if err != nil {
 		c.recorder.Eventf(fas, corev1.EventTypeWarning, "FleetAutoscaler",
 			"Error calculating desired fleet size on FleetAutoscaler %s. Error: %s", fas.ObjectMeta.Name, err.Error())

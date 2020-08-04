@@ -40,18 +40,18 @@ var client = http.Client{
 }
 
 // computeDesiredFleetSize computes the new desired size of the given fleet
-func computeDesiredFleetSize(fas *autoscalingv1.FleetAutoscaler, f *agonesv1.Fleet) (int32, bool, error) {
+func (c *Controller) computeDesiredFleetSize(fas *autoscalingv1.FleetAutoscaler, f *agonesv1.Fleet) (int32, bool, error) {
 	switch fas.Spec.Policy.Type {
 	case autoscalingv1.BufferPolicyType:
 		return applyBufferPolicy(fas.Spec.Policy.Buffer, f)
 	case autoscalingv1.WebhookPolicyType:
-		return applyWebhookPolicy(fas.Spec.Policy.Webhook, f)
+		return c.applyWebhookPolicy(fas.Spec.Policy.Webhook, f)
 	}
 
 	return 0, false, errors.New("wrong policy type, should be one of: Buffer, Webhook")
 }
 
-func buildURLFromWebhookPolicy(w *autoscalingv1.WebhookPolicy) (*url.URL, error) {
+func (c *Controller) buildURLFromWebhookPolicy(w *autoscalingv1.WebhookPolicy) (*url.URL, error) {
 	if w.URL != nil && w.Service != nil {
 		return nil, errors.New("service and URL cannot be used simultaneously")
 	}
@@ -85,6 +85,8 @@ func buildURLFromWebhookPolicy(w *autoscalingv1.WebhookPolicy) (*url.URL, error)
 	if w.CABundle != nil {
 		scheme = "https"
 
+		c.baseLogger.Debug("Wait for cache sync")
+
 		if err := setCABundle(w.CABundle); err != nil {
 			return nil, err
 		}
@@ -117,7 +119,7 @@ func setCABundle(caBundle []byte) error {
 	return nil
 }
 
-func applyWebhookPolicy(w *autoscalingv1.WebhookPolicy, f *agonesv1.Fleet) (replicas int32, limited bool, err error) {
+func (c *Controller) applyWebhookPolicy(w *autoscalingv1.WebhookPolicy, f *agonesv1.Fleet) (replicas int32, limited bool, err error) {
 	if w == nil {
 		return 0, false, errors.New("webhookPolicy parameter must not be nil")
 	}
@@ -126,7 +128,7 @@ func applyWebhookPolicy(w *autoscalingv1.WebhookPolicy, f *agonesv1.Fleet) (repl
 		return 0, false, errors.New("fleet parameter must not be nil")
 	}
 
-	u, err := buildURLFromWebhookPolicy(w)
+	u, err := c.buildURLFromWebhookPolicy(w)
 	if err != nil {
 		return 0, false, err
 	}

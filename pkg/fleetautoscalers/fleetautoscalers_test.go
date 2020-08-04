@@ -163,8 +163,8 @@ func TestComputeDesiredFleetSize(t *testing.T) {
 			f.Status.Replicas = tc.statusReplicas
 			f.Status.AllocatedReplicas = tc.statusAllocatedReplicas
 			f.Status.ReadyReplicas = tc.statusReadyReplicas
-
-			replicas, limited, err := computeDesiredFleetSize(fas, f)
+			c, _ := newFakeController()
+			replicas, limited, err := c.computeDesiredFleetSize(fas, f)
 
 			if tc.expected.err != "" && assert.NotNil(t, err) {
 				assert.Equal(t, tc.expected.err, err.Error())
@@ -541,7 +541,8 @@ func TestApplyWebhookPolicy(t *testing.T) {
 			f.Status.AllocatedReplicas = tc.statusAllocatedReplicas
 			f.Status.ReadyReplicas = tc.statusReadyReplicas
 
-			replicas, limited, err := applyWebhookPolicy(tc.webhookPolicy, f)
+			c, _ := newFakeController()
+			replicas, limited, err := c.applyWebhookPolicy(tc.webhookPolicy, f)
 
 			if tc.expected.err != "" && assert.NotNil(t, err) {
 				assert.Equal(t, tc.expected.err, err.Error())
@@ -566,7 +567,8 @@ func TestApplyWebhookPolicyNilFleet(t *testing.T) {
 		},
 	}
 
-	replicas, limited, err := applyWebhookPolicy(w, nil)
+	c, _ := newFakeController()
+	replicas, limited, err := c.applyWebhookPolicy(w, nil)
 
 	if assert.NotNil(t, err) {
 		assert.Equal(t, "fleet parameter must not be nil", err.Error())
@@ -669,7 +671,9 @@ func TestBuildURLFromWebhookPolicyNoNamespace(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			url, err := buildURLFromWebhookPolicy(tc.webhookPolicy)
+
+			c, _ := newFakeController()
+			url, err := c.buildURLFromWebhookPolicy(tc.webhookPolicy)
 
 			if tc.expected.err != "" && assert.NotNil(t, err) {
 				assert.Equal(t, tc.expected.err, err.Error())
