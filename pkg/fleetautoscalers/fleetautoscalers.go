@@ -85,7 +85,7 @@ func (c *Controller) buildURLFromWebhookPolicy(w *autoscalingv1.WebhookPolicy) (
 	if w.CABundle != nil {
 		scheme = "https"
 
-		c.baseLogger.Debug("Wait for cache sync")
+		c.baseLogger.Debug("CABundle", string(w.CABundle), " ", w.CABundle)
 
 		if err := setCABundle(w.CABundle); err != nil {
 			return nil, err
@@ -148,6 +148,12 @@ func (c *Controller) applyWebhookPolicy(w *autoscalingv1.WebhookPolicy, f *agone
 		return 0, false, err
 	}
 
+	if client.Transport != nil {
+		c.baseLogger.Debug("Before Post", string(w.CABundle), " ", client.Transport.(*http.Transport).TLSClientConfig.RootCAs, w)
+
+	} else {
+		c.baseLogger.Debug(fmt.Sprintf("Before Post: nil %s %+v", string(w.CABundle), w))
+	}
 	res, err := client.Post(
 		u.String(),
 		"application/json",
