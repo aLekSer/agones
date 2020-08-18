@@ -115,6 +115,16 @@ module "gke_cluster" {
   }
 }
 
+provider "helm" {
+  version = "~> 1.2"
+  kubernetes {
+    load_config_file       = false
+    host                   = module.gke_cluster.host
+    token                  = module.gke_cluster.token
+    cluster_ca_certificate = module.gke_cluster.cluster_ca_certificate
+  }
+}
+
 module "helm_agones" {
   source = "../../../install/terraform/modules/helm3"
 
@@ -130,6 +140,11 @@ module "helm_agones" {
   crd_cleanup            = var.crd_cleanup
   ping_service_type      = var.ping_service_type
   log_level              = var.log_level
+
+  providers =  {
+    helm = helm
+  }
+  depends_on = ["module.gke_cluster.token"]
 }
 
 output "host" {
