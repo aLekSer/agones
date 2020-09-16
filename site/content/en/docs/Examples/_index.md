@@ -27,9 +27,9 @@ These are all examples of simple game server implementations, that integrate the
 {{% /feature %}}
 - {{< ghlink href="examples/cpp-simple" >}}CPP Simple{{< /ghlink >}} (C++) - C++ example that starts up, stays healthy and then shuts down after 60 seconds.
 - {{< ghlink href="examples/nodejs-simple" >}}Node.js Simple{{< /ghlink >}} (Node.js) -
-  A simple Node.js example that marks itself as ready, sets some labels and then shutsdown.
+  A simple Node.js example that marks itself as ready, sets some labels and then shuts down.
 - {{< ghlink href="examples/rust-simple" >}}Rust Simple{{< /ghlink >}} (Rust) -
-  A simple Rust example that marks itself as ready, sets some labels and then shutsdown.
+  A simple Rust example that marks itself as ready, sets some labels and then shuts down.
 - {{< ghlink href="examples/unity-simple" >}}Unity Simple{{< /ghlink >}} (Unity3d)  - 
   This is a very simple "unity server" that doesn't do much other than show how the SDK works in Unity.
 - {{< ghlink href="examples/xonotic" >}}Xonotic{{< /ghlink >}} - Wraps the SDK around the open source FPS game [Xonotic](http://www.xonotic.org) and hosts it on Agones.
