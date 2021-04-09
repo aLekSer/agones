@@ -16,7 +16,9 @@
 FROM golang:1.14.12 as builder
 WORKDIR /go/src/simple-udp
 
-COPY examples/simple-udp/main.go .
+COPY examples/simple-udp//main.go .
+COPY examples/simple-udp//go.mod .
+COPY examples/simple-udp//go.sum .
 COPY . /go/src/agones.dev/agones
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server .
 
@@ -26,7 +28,7 @@ FROM alpine:3.11
 RUN adduser -D -u 1000 server
 COPY --from=builder /go/src/simple-udp/server /home/server/server
 RUN chown -R server /home/server && \
-    chmod o+x /home/server/server
+    chmod 755 /home/server/server
 
 USER 1000
 ENTRYPOINT ["/home/server/server"]

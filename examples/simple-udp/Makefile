@@ -23,6 +23,8 @@
 #     \_/ \__,_|_|  |_|\__,_|_.__/|_|\___|___/
 #
 
+KIND ?= /Users/alexander.apalikov/go/src/open-match/build/toolchain/bin/kind
+
 REPOSITORY = gcr.io/agones-images
 BUILDX_WINDOWS_BUILDER = windows-builder
 WINDOWS_VERSIONS = ltsc2019 # 1909 (For GKE WINDOWS_SAC support)
@@ -30,7 +32,7 @@ WINDOWS_DOCKER_PUSH_ARGS = # When pushing set to --push.
 
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 project_path := $(dir $(mkfile_path))
-server_tag = $(REPOSITORY)/udp-server:0.21
+server_tag = $(REPOSITORY)/udp-server:0.23
 ifdef WITH_WINDOWS
 server_tag_linux_amd64 = $(server_tag)-linux_amd64
 else
@@ -66,6 +68,11 @@ push-multi-arch-image: push-linux-image push-windows-images
 # Pushes all variants of the Windows images to the container image registry.
 push-linux-image: build
 	docker push $(server_tag_linux_amd64)
+
+
+# Pushes all variants of the Windows images to the container image registry.
+kind-linux-image: build
+	${KIND} load docker-image $(server_tag_linux_amd64)
 
 # Pushes all variants of the Windows images to the container image registry.
 push-windows-images: $(foreach winver, $(WINDOWS_VERSIONS), push-windows-image-$(winver))

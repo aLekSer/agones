@@ -16,6 +16,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -29,6 +30,8 @@ import (
 	coresdk "agones.dev/agones/pkg/sdk"
 	"agones.dev/agones/pkg/util/signals"
 	sdk "agones.dev/agones/sdks/go"
+	"google.golang.org/grpc"
+	"open-match.dev/open-match/pkg/pb"
 )
 
 // main starts a UDP server that received 1024 byte sized packets at at time
@@ -141,6 +144,12 @@ func readWriteLoop(conn net.PacketConn, stop chan struct{}, s *sdk.SDK) {
 		case "READY":
 			ready(s)
 
+		case "ACKNOWLEDGE":
+			acknowledge(s)
+
+		case "ACK":
+			acknowledge(s)
+
 		case "ALLOCATE":
 			allocate(s)
 
@@ -244,6 +253,29 @@ func ready(s *sdk.SDK) {
 	if err != nil {
 		log.Fatalf("Could not send ready message")
 	}
+}
+
+// acknowledge attempts to acknowledgeBackfill by ID
+func acknowledge(s *sdk.SDK) {
+	ctx := context.Background()
+	conn, err := grpc.Dial("open-match-frontend.open-match.svc.cluster.local:50504", grpc.WithInsecure())
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+	fe := pb.NewFrontendServiceClient(conn)
+
+	var gs *coresdk.GameServer
+	gs, err = s.GameServer()
+	gsLabels := gs.ObjectMeta.Labels["backfill_id"]
+	log.Printf("BackfillID: %s", gsLabels)
+	acknowledgeReq := &pb.AcknowledgeBackfillRequest{BackfillId: gsLabels, Assignment: &pb.Assignment{Connection: "10.0.0.1"}}
+	bf, err := fe.AcknowledgeBackfill(ctx, acknowledgeReq)
+	if err != nil {
+		log.Printf("Could not send AcknowledgeBackfill message %v", err)
+		return
+	}
+	log.Printf("Backfill: %v", bf)
 }
 
 // allocate attempts to allocate this gameserver

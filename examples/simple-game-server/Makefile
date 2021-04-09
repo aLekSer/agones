@@ -22,12 +22,13 @@
 #    \ V / (_| | |  | | (_| | |_) | |  __\__ \
 #     \_/ \__,_|_|  |_|\__,_|_.__/|_|\___|___/
 #
+KIND ?= /Users/alexander.apalikov/go/src/open-match/build/toolchain/bin/kind
 
 REPOSITORY = gcr.io/agones-images
 
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 project_path := $(dir $(mkfile_path))
-server_tag = $(REPOSITORY)/simple-game-server:0.1
+server_tag = $(REPOSITORY)/simple-game-server:0.2
 root_path = $(realpath $(project_path)/../..)
 
 #   _____                    _
@@ -48,3 +49,8 @@ gcr-check:
 #output the tag for this image
 echo-image-tag:
 	@echo $(server_tag)
+	
+	
+# Pushes image to kind
+kind-linux-image: build
+	${KIND} load docker-image $(server_tag)
